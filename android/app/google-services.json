@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "13175499408",
+    "project_id": "biztechnovation-daf60",
+    "storage_bucket": "biztechnovation-daf60.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:13175499408:android:c821c3585618bbf2d1c615",
+        "android_client_info": {
+          "package_name": "com.biztechinovation"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsQXMMTBu3gSHOtbjJhL8TfKokNsWgU5E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
