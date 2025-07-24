@@ -1,204 +1,179 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-    View,
-    Text,
-    TextInput,
-    Image,
-    TouchableOpacity,
-    StyleSheet,
-    TouchableWithoutFeedback,
-    Keyboard,
+  View,
+  Text,
+  TextInput,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Keyboard,
+  KeyboardAvoidingView, Platform 
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 
 const Login = ({ navigation }) => {
-const [phone, setPhone] = useState('');
-    const [pin, setPin] = useState(['', '', '', '', '', '']);
-    const [keyboardShown, setKeyboardShown] = useState(false);
-    const [confirm, setConfirm] = useState(null); // stores Firebase confirmation result
-    const [isVerifying, setIsVerifying] = useState(false);
-const [otpSent, setOtpSent] = useState(false);
+  const [phone, setPhone] = useState('9999999999'); // for test number
+const [pin, setPin] = useState(['', '', '', '', '', '']);
+  const [keyboardShown, setKeyboardShown] = useState(false);
+  const [confirm, setConfirm] = useState(null);
+  const [otpSent, setOtpSent] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const pinInputs = useRef([]);
 
+  useEffect(() => {
+    if (phone.length === 10 && !otpSent) {
+      const fullPhoneNumber = `+91${phone}`;
+      console.log('Sending OTP to', fullPhoneNumber);
 
-useEffect(() => {
-  if (phone.length === 10 && !otpSent) {
-    const fullPhoneNumber = `+91${phone}`;
-    auth()
-      .signInWithPhoneNumber(fullPhoneNumber)
-      .then((confirmation) => {
-        setConfirm(confirmation);
-        setOtpSent(true);
-        console.log('OTP sent');
-      })
-      .catch((error) => {
-        console.error(error);
-        alert('Failed to send OTP');
-      });
-  }
-}, [phone]);
-    const pinInputs = useRef([]);
+      auth()
+        .signInWithPhoneNumber(fullPhoneNumber)
+        .then((confirmation) => {
+          setConfirm(confirmation);
+          setOtpSent(true);
+          console.log('OTP sent successfully');
+        })
+        .catch((error) => {
+          console.error('Failed to send OTP:', error);
+          alert('Failed to send OTP. Please try again.');
+        });
+    }
+  }, [phone]);
 
-    const isLoginEnabled =
-        phone.length === 10 && pin.every((digit) => digit !== '');
-const handlePinChange = (text, index) => {
-  const cleanText = text.replace(/[^0-9]/g, '');
-  const newPin = [...pin];
-  newPin[index] = cleanText;
-  setPin(newPin);
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardShown(true));
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardShown(false));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
-  if (cleanText && index < 3) {
-    pinInputs.current[index + 1].focus();
-  }
+  const handlePinChange = (text, index) => {
+    const cleanText = text.replace(/[^0-9]/g, '');
+    const newPin = [...pin];
+    newPin[index] = cleanText;
+    setPin(newPin);
 
-  // Auto-submit when all 4 digits are filled
-  if (newPin.every((digit) => digit !== '') && confirm && !isVerifying) {
-    verifyOtp(newPin.join(''));
-  }
+    if (cleanText && index < 5) {
+      pinInputs.current[index + 1].focus();
+    }
+  };
+
+  const handleLogin = async () => {
+    const code = pin.join('');
+    if (code.length !== 6 || !confirm) {
+      alert('Invalid OTP');
+      return;
+    }
+
+    try {
+      setIsVerifying(true);
+      await confirm.confirm(code); // Firebase confirmation
+      alert('Please otp verified');
+      navigation.navigate('TabNavigation'); 
+    } catch (error) {
+      console.error('OTP verification failed', error);
+      alert('Incorrect OTP. Try again.');
+      setPin(['', '', '', '','','']);
+      pinInputs.current[0].focus();
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const isLoginEnabled = pin.every((digit) => digit !== '');
+
+  return (
+  <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+  <KeyboardAvoidingView
+    style={{ flex: 1, backgroundColor: '#fff' }}
+    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+  >
+    <View style={styles.container}>
+          {/* Header */}
+          <View style={styles.topRow}>
+            <View>
+              <Text style={styles.loginText}>Login Account</Text>
+              <Text style={styles.welcomeText}>Hello, Welcome</Text>
+            </View>
+            <View style={styles.avatarContainer}>
+              <Image source={require('../assets/user.png')} style={styles.avatar} />
+            </View>
+          </View>
+
+          {/* Image */}
+          <Image source={require('../assets/girlimages.png')} style={styles.centerImage} />
+
+          {/* Phone Input */}
+          <Text style={styles.label}>Phone no..</Text>
+          <View style={styles.phoneInputContainer}>
+            <View style={styles.flagContainer}>
+              <Image source={require('../assets/india.png')} style={styles.flag} />
+            </View>
+            <View style={styles.separator} />
+            <TextInput
+              style={styles.phoneInput}
+              keyboardType="phone-pad"
+              placeholder="Enter phone number"
+              placeholderTextColor="#999"
+              value={phone}
+              maxLength={10}
+              onChangeText={(text) => {
+                setPhone(text.replace(/[^0-9]/g, ''));
+                setOtpSent(false);
+                setConfirm(null);
+              }}
+            />
+            {phone.length === 10 && (
+              <Image source={require('../assets/check.png')} style={styles.icon} />
+            )}
+          </View>
+ <Text style={styles.pinlabel}>6 Digit OTP</Text>
+
+<View style={styles.pinContainer}>
+  {[...Array(6)].map((_, index) => (
+    <TextInput
+      key={index}
+      ref={(el) => (pinInputs.current[index] = el)}
+      style={[
+        styles.pinInput,
+        !otpSent && { backgroundColor: '#cacacaff' },
+      ]}
+      maxLength={1}
+      keyboardType="numeric"
+      value={pin[index]}
+      onChangeText={(text) => otpSent && handlePinChange(text, index)}
+      editable={otpSent}
+    />
+  ))}
+</View>
+<TouchableOpacity
+  onPress={handleLogin}
+  style={[
+    styles.loginButton,
+    {
+      backgroundColor: isLoginEnabled ? '#e22727ff' : '#ccc',
+    },
+  ]}
+  disabled={!isLoginEnabled || isVerifying}
+>
+  <Text style={styles.loginButtonText}>
+    {isVerifying ? 'Verifying...' : 'Verify OTP'}
+  </Text>
+</TouchableOpacity>
+    </View>
+  </KeyboardAvoidingView>
+</TouchableWithoutFeedback>
+  );
 };
 
-const handleLogin = () => {
-  if (confirm && pin.every((digit) => digit !== '')) {
-    verifyOtp(pin.join(''));
-  }
-};
-
-const verifyOtp = async (code) => {
-  try {
-    setIsVerifying(true);
-    await confirm.confirm(code);
-    navigation.navigate('TabNavigation');
-  } catch (error) {
-    alert('Incorrect OTP. Try again.');
-    setPin(['', '', '', '']);
-    pinInputs.current[0].focus();
-  } finally {
-    setIsVerifying(false);
-  }
-};
-    // Detect keyboard status
-    useEffect(() => {
-        const showSub = Keyboard.addListener('keyboardDidShow', () =>
-            setKeyboardShown(true)
-        );
-        const hideSub = Keyboard.addListener('keyboardDidHide', () =>
-            setKeyboardShown(false)
-        );
-
-        return () => {
-            showSub.remove();
-            hideSub.remove();
-        };
-    }, []);
-
-    return (
-        // <KeyboardAvoidingView
-        //     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        //     style={{ flex: 1, backgroundColor: '#FFFFFF' }}
-        //     keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 50}
-        // >
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-                    <View
-                        style={[
-                            styles.container,
-                            { marginTop: '5%', backgroundColor: '#FFFFFF', }
-                        ]}
-                        keyboardShouldPersistTaps="handled"
-                        scrollEnabled={keyboardShown}
-                    >
-                        {/* Top Row */}
-                        <View style={styles.topRow}>
-                            <View>
-                                <Text style={styles.loginText}>Login Account</Text>
-                                <Text style={styles.welcomeText}>Hello, Welcome</Text>
-                            </View>
-                            <View style={styles.avatarContainer}>
-                              <Image source={require('../assets/user.png')}  style={styles.avatar} />
-                            </View>
-                        </View>
-
-                        {/* Center Image */}
-                        <Image source={require('../assets/girlimages.png')}
-                            style={styles.centerImage}
-                        />
-
-                        {/* Phone Input */}
-                        <Text style={styles.label}>Phone no..</Text>
-                        <View
-                            style={[
-                                styles.phoneInputContainer,
-                                phone.length === 0 ? { borderColor: 'red' } : { borderColor: 'black' },
-                            ]}
-                        >
-                            <View style={styles.flagContainer}>
-                                <Image source={require('../assets/india.png')} style={styles.flag} />
-                            </View>
-                            <View style={styles.separator} />
-                            <TextInput
-                                style={styles.phoneInput}
-                                keyboardType="phone-pad"
-                                placeholder="Enter phone number"
-                                placeholderTextColor="#999"
-                                value={phone}
-                                maxLength={10}
-                                onChangeText={(text) => setPhone(text.replace(/[^0-9]/g, ''))}
-                            />
-                            {phone.length > 0 && phone.length < 10 && (
-                                <TouchableOpacity onPress={() => setPhone('')}>
-                                    <Image source={require('../assets/delete.jpg')} style={styles.icon} />
-                                </TouchableOpacity>
-                            )}
-                            {phone.length === 10 && (
-                                <Image source={require('../assets/check.png')} style={styles.icon} />
-                            )}
-                        </View>
-
-                        {/* PIN Input */}
-                        <Text style={styles.pinlabel}>4 Digit pin..</Text>
-                        <View style={styles.pinContainer}>
-                            {[...Array(4)].map((_, index) => (
-                                <TextInput
-                                    key={index}
-                                    ref={(el) => (pinInputs.current[index] = el)}
-                                    style={styles.pinInput}
-                                    maxLength={1}
-                                    keyboardType="numeric"
-                                    value={pin[index]}
-                                    onChangeText={(text) => handlePinChange(text, index)}
-                                />
-                            ))}
-                        </View>
-
-                        {/* Forgot Pin */}
-                        <TouchableOpacity>
-                            <Text style={styles.forgotPassword}>Forgot Pin?</Text>
-                        </TouchableOpacity>
-
-                        {/* Login Button */}
-                        <TouchableOpacity
-                         onPress={handleLogin}
-                            style={[
-                                styles.loginButton,
-                                { backgroundColor: isLoginEnabled ? '#e22727ff' : '#ccc', },
-                          { borderColor: isLoginEnabled ? '#e22727ff' : '#e22727ff', },
-                            ]}
-                            disabled={!isLoginEnabled}
-                        >
-<Text style={styles.loginButtonText}>
-  {otpSent ? 'Verify OTP' : 'Sending OTP...'}
-</Text>                        </TouchableOpacity>
-                    </View>
-                </View>
-            </TouchableWithoutFeedback>
-        // </KeyboardAvoidingView>
-    );
-};
 const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
         padding: 20,
         backgroundColor: '#FFFFFF',
-        justifyContent: 'space-between',
+ justifyContent: 'flex-start',
     },
     topRow: {
         flexDirection: 'row',
@@ -292,7 +267,7 @@ const styles = StyleSheet.create({
         height: 50,
         borderWidth: 1,
         borderColor: '',
-        backgroundColor: '#ebe8e8',
+        backgroundColor: '#ffffff',
         textAlign: 'center',
         borderRadius: 50,
         fontSize: 20,
