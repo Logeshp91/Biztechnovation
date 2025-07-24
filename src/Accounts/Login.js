@@ -1,19 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
+import {View,Text,TextInput,
   Image,
   TouchableOpacity,
   StyleSheet,
   TouchableWithoutFeedback,
   Keyboard,
-  KeyboardAvoidingView, Platform 
+  KeyboardAvoidingView, Platform ,
+    PermissionsAndroid,
+  NativeModules,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
+import RNSimData from 'react-native-sim-data';
 
 const Login = ({ navigation }) => {
-  const [phone, setPhone] = useState('9999999999'); // for test number
+  const [phone, setPhone] = useState(''); 
+    const [mobileNumber, setMobileNumber] = useState('');
+
 const [pin, setPin] = useState(['', '', '', '', '', '']);
   const [keyboardShown, setKeyboardShown] = useState(false);
   const [confirm, setConfirm] = useState(null);
@@ -39,6 +41,64 @@ const [pin, setPin] = useState(['', '', '', '', '', '']);
         });
     }
   }, [phone]);
+
+  
+useEffect(() => {
+  if (mobileNumber && !phone) {
+    setPhone(mobileNumber);
+  }
+}, [mobileNumber]);
+
+useEffect(() => {
+  const fetchSimNumber = async () => {
+    if (Platform.OS === 'android') {
+      const hasPermission = await requestSimPermission();
+      if (hasPermission) {
+        const simInfoList = await getSimNumbers();
+
+        if (Array.isArray(simInfoList) && simInfoList.length > 0) {
+          const firstSim = simInfoList.find(sim => sim.number && sim.number.length >= 10);
+          if (firstSim) {
+            let number = firstSim.number
+  .replace(/^(\+91|91)/, '') 
+  .replace(/\s/g, '');       
+            setMobileNumber(number);
+          }
+        }
+      }
+    }
+  };
+
+  fetchSimNumber();
+}, []);
+
+  const getSimNumbers = async () => {
+    const { SimInfo } = NativeModules;
+    try {
+      const numbers = await SimInfo.getSimNumbers();
+      return JSON.parse(numbers); // 👈 ensure it’s parsed if returned as JSON string
+    } catch (error) {
+      console.error('Error fetching SIM numbers:', error);
+      return [];
+    }
+  };
+
+const requestSimPermission = async () => {
+  try {
+    const granted = await PermissionsAndroid.requestMultiple([
+      PermissionsAndroid.PERMISSIONS.READ_PHONE_NUMBERS,
+      PermissionsAndroid.PERMISSIONS.READ_PHONE_STATE,
+    ]);
+
+    return (
+      granted['android.permission.READ_PHONE_NUMBERS'] === PermissionsAndroid.RESULTS.GRANTED &&
+      granted['android.permission.READ_PHONE_STATE'] === PermissionsAndroid.RESULTS.GRANTED
+    );
+  } catch (err) {
+    console.warn('Permission error:', err);
+    return false;
+  }
+};
 
   useEffect(() => {
     const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardShown(true));
@@ -69,7 +129,7 @@ const [pin, setPin] = useState(['', '', '', '', '', '']);
 
     try {
       setIsVerifying(true);
-      await confirm.confirm(code); // Firebase confirmation
+      await confirm.confirm(code); 
       alert('Please otp verified');
       navigation.navigate('TabNavigation'); 
     } catch (error) {
@@ -112,19 +172,21 @@ const [pin, setPin] = useState(['', '', '', '', '', '']);
               <Image source={require('../assets/india.png')} style={styles.flag} />
             </View>
             <View style={styles.separator} />
-            <TextInput
-              style={styles.phoneInput}
-              keyboardType="phone-pad"
-              placeholder="Enter phone number"
-              placeholderTextColor="#999"
-              value={phone}
-              maxLength={10}
-              onChangeText={(text) => {
-                setPhone(text.replace(/[^0-9]/g, ''));
-                setOtpSent(false);
-                setConfirm(null);
-              }}
-            />
+<TextInput
+  style={styles.phoneInput}
+  keyboardType="phone-pad"
+  placeholder="Enter phone number"
+  placeholderTextColor="#999"
+  value={phone}
+  maxLength={10}
+  onChangeText={(text) => {
+    const cleaned = text.replace(/[^0-9]/g, '');
+    setPhone(cleaned);
+    setOtpSent(false);
+    setConfirm(null);
+  }}
+/>
+
             {phone.length === 10 && (
               <Image source={require('../assets/check.png')} style={styles.icon} />
             )}
