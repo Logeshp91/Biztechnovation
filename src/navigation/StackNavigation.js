@@ -1,8 +1,8 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Login from '../Accounts/Login';
-import Loading from '../Accounts/Loading';
+import Login from '../Account/Accounts/Login';
+import Loading from '../Account/Accounts/Loading';
 import TabNavigation from './TabNavigation';
 import DrawerNavigation from './DrawerNavigation';
 

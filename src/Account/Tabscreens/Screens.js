@@ -14,7 +14,7 @@ const Screens = () => {
       <View style={styles.animatedCard}>
         <View style={styles.imageWrapper}>
           <Image
-            source={require('../assets/workinggirl.png')}
+            source={require('../../assets/workinggirl.png')}
             style={styles.largeImage}
             resizeMode="contain"
           />

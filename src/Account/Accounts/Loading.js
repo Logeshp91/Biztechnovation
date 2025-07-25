@@ -11,7 +11,7 @@ const SplashScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Image source={require('../assets/download.png')} style={styles.image} />
+      <Image source={require('../../assets/download.png')} style={styles.image} />
     </View>
   );
 };

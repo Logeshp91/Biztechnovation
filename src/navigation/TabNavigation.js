@@ -3,10 +3,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-import Screens from '../Tabscreens/Screens';
-import Settings from '../Tabscreens/Settings';
-import Contact from '../Tabscreens/Contact';
-import About from '../Tabscreens/About';
+import Screens from '../Account/Tabscreens/Screens';
+import Settings from '../Account/Tabscreens/Settings';
+import Contact from '../Account/Tabscreens/Contact';
+import About from '../Account/Tabscreens/About';
 import { View, TextInput, View as RNView } from 'react-native';
 import CustomDrawerContent from './CustomDrawerContent';
 

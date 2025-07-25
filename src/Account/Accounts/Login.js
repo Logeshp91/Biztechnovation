@@ -158,18 +158,18 @@ const requestSimPermission = async () => {
               <Text style={styles.welcomeText}>Hello, Welcome</Text>
             </View>
             <View style={styles.avatarContainer}>
-              <Image source={require('../assets/user.png')} style={styles.avatar} />
+              <Image source={require('../../assets/user.png')} style={styles.avatar} />
             </View>
           </View>
 
           {/* Image */}
-          <Image source={require('../assets/girlimages.png')} style={styles.centerImage} />
+          <Image source={require('../../assets/girlimages.png')} style={styles.centerImage} />
 
           {/* Phone Input */}
           <Text style={styles.label}>Phone no..</Text>
           <View style={styles.phoneInputContainer}>
             <View style={styles.flagContainer}>
-              <Image source={require('../assets/india.png')} style={styles.flag} />
+              <Image source={require('../../assets/india.png')} style={styles.flag} />
             </View>
             <View style={styles.separator} />
 <TextInput
@@ -188,7 +188,7 @@ const requestSimPermission = async () => {
 />
 
             {phone.length === 10 && (
-              <Image source={require('../assets/check.png')} style={styles.icon} />
+              <Image source={require('../../assets/check.png')} style={styles.icon} />
             )}
           </View>
  <Text style={styles.pinlabel}>6 Digit OTP</Text>
