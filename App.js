@@ -8,12 +8,3 @@ const App = () => {
   );
 }
 export default App;
-
-// import React from 'react';
-// import NewLogin from './Newlogin'
-// const App = () => {
-//   return (
-//       <NewLogin />
-//   );
-// }
-// export default App;
