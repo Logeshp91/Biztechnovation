@@ -2,30 +2,34 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, Image, View } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { postauthendication } from '../redux/action';
+
 
 const CustomDrawerContent = () => {
   const navigation = useNavigation();
-
   const profilePicSource = require('../assets/check.png');
+  const dispatch = useDispatch();
 
+  const { postauthendicationData} = useSelector(state => state.postauthendicationReducer);
+  const user = postauthendicationData || {};
   return (
     <View style={styles.container}>
       <View style={styles.upperHalf}>
-        <Image 
-          source={profilePicSource}
-          style={styles.image} 
-        />
+        <Image source={profilePicSource} style={styles.image} />
         <View style={styles.userDataContainer}>
-          <Text style={styles.userData}>John Doe</Text>
-          <Text style={styles.userData}>johndoe@example.com</Text>
+          <Text style={styles.userData}>{user.partner_display_name || 'No Name'}</Text>
+          <Text style={styles.userData}>{user.username || 'No Username'}</Text>
+          <Text style={styles.userData}>{user.partner_write_date || 'No Date'}</Text>
         </View>
       </View>
+
       <DrawerContentScrollView style={styles.lowerHalf}>
         <TouchableOpacity onPress={() => navigation.navigate('Screens')}>
-          <Text style={styles.drawerItem}>Set MPIN</Text>
+          <Text style={styles.drawerItem}>Dashboard</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.drawerItem}>Home</Text>
+          <Text style={styles.drawerItem}>Logout</Text>
         </TouchableOpacity>
       </DrawerContentScrollView>
     </View>
