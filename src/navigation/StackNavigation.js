@@ -10,8 +10,11 @@ import CreateVisit from '../Account/Accounts/dashboard/CreateVisit';
 import Stage1 from '../Account/Accounts/dashboard/Stage1';
 import Stage2 from '../Account/Accounts/dashboard/Stage2';
 import CompletedOrder from '../Account/Accounts/dashboard/CompletedOrder';
-
+import CompletedOrderStage2 from '../Account/Accounts/dashboard/CompletedOrderStage2';
 import OpenEnquiry from '../Account/Accounts/dashboard/OpenEnquiry';
+import ApprovalPending from '../Account/Accounts/dashboard/ApprovalPending';
+import ApprovedList from '../Account/Accounts/dashboard/ApprovedList';
+import LostList from '../Account/Accounts/dashboard/LostList';
 const Stack = createNativeStackNavigator();
 
 const StackNavigation = () => {
@@ -28,7 +31,10 @@ const StackNavigation = () => {
         <Stack.Screen options={{ headerShown: false }} name="Stage2" component={Stage2} />
         <Stack.Screen options={{ headerShown: false }} name="OpenEnquiry" component={OpenEnquiry} />
         <Stack.Screen options={{ headerShown: false }} name="CompletedOrder" component={CompletedOrder} />
-
+        <Stack.Screen options={{ headerShown: false }} name="CompletedOrderStage2" component={CompletedOrderStage2} />
+        <Stack.Screen options={{ headerShown: false }} name="ApprovalPending" component={ApprovalPending} />
+        <Stack.Screen options={{ headerShown: false }} name="ApprovedList" component={ApprovedList} />
+        <Stack.Screen options={{ headerShown: false }} name="LostList" component={LostList} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -6,6 +6,7 @@ const initial = {
     postauthendicationData: null,
     postauthendicationError: null,
     postauthendicationErrorInvalid: null,
+    uid: null,
 };
 
 const postauthendicationReducer = (state = initial, action) => {
@@ -22,6 +23,7 @@ const postauthendicationReducer = (state = initial, action) => {
                 ...state,
                 postauthendicationLoading: false,
                 postauthendicationData: action.payload,
+                uid: action.payload?.uid || null,
                 userToken: action.payload?.AccessToken || null,
                 postauthendicationError: null,
                 postauthendicationErrorInvalid: null,

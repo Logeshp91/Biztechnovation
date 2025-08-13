@@ -6,16 +6,16 @@ const initial = {
   error: {},
 };
 
-const postcreatevisitReducer = (state = initial, action) => {
+const postAccessReadReducer = (state = initial, action) => {
   switch (action.type) {
-    case actionTypes.POST_CREATEVISIT_REQUEST:
+    case actionTypes.POST_ACCESSREAD_REQUEST:
       return { 
         ...state, 
         loading: { ...state.loading, [action.requestKey]: true },
         error: { ...state.error, [action.requestKey]: null }
       };
 
-    case actionTypes.POST_CREATEVISIT_SUCCESS:
+    case actionTypes.POST_ACCESSREAD_SUCCESS:
       return {
         ...state,
         loading: { ...state.loading, [action.requestKey]: false },
@@ -23,8 +23,8 @@ const postcreatevisitReducer = (state = initial, action) => {
         error: { ...state.error, [action.requestKey]: null },
       };
 
-    case actionTypes.POST_CREATEVISIT_FAILURE:
-    case actionTypes.POST_CREATEVISIT_FAILURE_INVALID:
+    case actionTypes.POST_ACCESSREAD_FAILURE:
+    case actionTypes.POST_ACCESSREAD_FAILURE_INVALID:
       return {
         ...state,
         loading: { ...state.loading, [action.requestKey]: false },
@@ -36,4 +36,4 @@ const postcreatevisitReducer = (state = initial, action) => {
   }
 };
 
-export default postcreatevisitReducer;
+export default postAccessReadReducer;

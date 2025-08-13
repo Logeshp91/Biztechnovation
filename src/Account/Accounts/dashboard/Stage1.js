@@ -28,8 +28,8 @@ const Stage1 = () => {
   const [followUpDate, setFollowUpDate] = useState(
     enquiryData?.followup_date ? new Date(enquiryData.followup_date) : null
   );
-    const [reminderDate, setReminderDate] = useState(new Date());
-      const [showDatePicker, setShowDatePicker] = useState(false);
+  const [reminderDate, setReminderDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [showReminderModal, setShowReminderModal] = useState(false);
   const [showLostReasonModal, setShowLostReasonModal] = useState(false);
 
@@ -72,7 +72,7 @@ const Stage1 = () => {
             outcome_visit: visitOutcome,
             lost_reason: lostReason,
             remarks: remarks,
-            followup_date:followUpDate
+            followup_date: followUpDate
           }
         ],
         kwargs: {}
@@ -84,7 +84,7 @@ const Stage1 = () => {
     setSubmittedLostReason(lostReason ? LostReason.find(l => l.value === lostReason)?.label : '');
     setSubmittedFollowUp(visitOutcome === 'REMINDER' && followUpDate ? followUpDate.toDateString() : '');
 
-navigation.navigate('Stage2', { enquiryData });
+    navigation.navigate('Stage2', { enquiryData });
   };
 
   return (
@@ -137,30 +137,30 @@ navigation.navigate('Stage2', { enquiryData });
 
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Visit Outcome</Text>
-  <Dropdown
-  style={styles.dropdownmain}
-  data={visitOutcomes}
-  labelField="label"
-  valueField="value"
-  placeholder="Select Visit Outcome"
-  value={visitOutcome}
-  onChange={item => {
-    setVisitOutcome(item.value);
+        <Dropdown
+          style={styles.dropdownmain}
+          data={visitOutcomes}
+          labelField="label"
+          valueField="value"
+          placeholder="Select Visit Outcome"
+          value={visitOutcome}
+          onChange={item => {
+            setVisitOutcome(item.value);
 
-    if (item.value === 'REMINDER') {
-      setShowReminderModal(true);
-    } else {
-      setFollowUpDate(null);
-    }
+            if (item.value === 'REMINDER') {
+              setShowReminderModal(true);
+            } else {
+              setFollowUpDate(null);
+            }
 
-    if (item.value === 'LOST') {
-      setShowLostReasonModal(true);
-    } else {
-      setLostReason('');
-    }
-  }}
-  placeholderStyle={{ color: '#c6c4c4ff', fontSize: 11.5 }}
-/>
+            if (item.value === 'LOST') {
+              setShowLostReasonModal(true);
+            } else {
+              setLostReason('');
+            }
+          }}
+          placeholderStyle={{ color: '#c6c4c4ff', fontSize: 11.5 }}
+        />
 
         <Text style={styles.label}>Remarks</Text>
         <TextInput
@@ -190,7 +190,7 @@ navigation.navigate('Stage2', { enquiryData });
               style={[styles.dateButton, { marginBottom: 15 }]}
               onPress={() => setShowDatePicker(true)}
             >
-<Text style={styles.dateText}>{followUpDate ? followUpDate.toDateString() : 'Select Date'}</Text>
+              <Text style={styles.dateText}>{followUpDate ? followUpDate.toDateString() : 'Select Date'}</Text>
             </TouchableOpacity>
 
             {showDatePicker && (
@@ -345,7 +345,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 12,
     backgroundColor: '#fff',
-    borderWidth: 1,
     marginBottom: '2%',
     borderColor: '#0452A6'
   },

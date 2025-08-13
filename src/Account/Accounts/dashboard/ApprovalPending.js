@@ -1,37 +1,74 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { postcreatevisit } from '../../../redux/action';
+import { postcreatevisit,postAccessRead } from '../../../redux/action';
 import { useNavigation } from '@react-navigation/native';
 
-const OpenEnquiry = () => {
+const ApprovalPending = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const [userGroups, setUserGroups] = useState([]);
-  const uid = useSelector(state => state.postauthendicationReducer.uid);
+const [userGroups, setUserGroups] = useState([]);
+const [verifyingId, setVerifyingId] = useState(null);
+
+const uid = useSelector(state => state.postauthendicationReducer.uid);
+
   const postcreatevisitData = useSelector(
     (state) => state.postcreatevisitReducer.data["openEnquiryList"]
   );
+
   const postcreatevisitLoading = useSelector(
     (state) => state.postcreatevisitReducer.loading["openEnquiryList"]
   );
-
   const [enquiries, setEnquiries] = useState([]);
+
+
+const onHandlingVerify = async (id) => {
+  setVerifyingId(id);
+
+  const payload = { jsonrpc: "2.0", method: "call", params: { visit_id: id } };
+
+  try {
+    // Show loader for 1 second
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const response = await dispatch(postAccessRead(payload, "verifyVisit"));
+    console.log("Verify API Response:", response);
+
+    // Access the API result properly
+    const result = response?.data?.result;
+
+    if (result?.success) {
+      // Temporarily mark as verified
+      setEnquiries(prev =>
+        prev.map(item =>
+          item.id === id ? { ...item, state: "verified" } : item
+        )
+      );
+
+    } else {
+      console.warn("Verification failed:", result?.message);
+    }
+  } catch (error) {
+    console.error("Verify API failed:", error);
+  } finally {
+    setVerifyingId(null);
+  }
+};
 
   useEffect(() => {
     const payload = {
-      "jsonrpc": "2.0",
-      "method": "call",
-      "params": {
-        "model": "customer.visit",
-        "method": "search_read",
-        "args": [],
-        "kwargs": {
-          "fields": ["id",
+      jsonrpc: "2.0",
+      method: "call",
+      params: {
+        model: "customer.visit",
+        method: "search_read",
+        args: [],
+        kwargs: {
+          fields: [
+            "id",
             "name",
             "partner_id",
             "state",
-            "followup_date",
             "brand",
             "visit_purpose",
             "product_category",
@@ -39,41 +76,44 @@ const OpenEnquiry = () => {
             "remarks",
             "so_id",
             "outcome_visit",
-            "lost_reason"]
-        }
-      }
-    }
-    dispatch(postcreatevisit(payload, "openEnquiryList"));
+            "lost_reason",
+            "followup_date"
+          ],
+        },
+      },
+    };
+    dispatch(postcreatevisit(payload, "approvalPendingList"));
+
   }, [dispatch]);
 
   useEffect(() => {
-    if (!uid) return;
+      if (!uid) return;
 
     const payload = {
-      "jsonrpc": "2.0",
-      "method": "call",
-      "params": {
-        "model": "res.users",
-        "method": "read",
-        "args": [
-          [uid],
-          ["id", "name", "groups_id"]
-        ],
-        "kwargs": {}
-      }
-    }
-    dispatch(postcreatevisit(payload, "groupList"));
-    console.log("Fetching group list for UID:", uid);
-  }, [dispatch, uid]);
+  "jsonrpc": "2.0",
+  "method": "call",
+  "params": {
+    "model": "res.users",
+    "method": "read",
+    "args": [
+      [uid],
+      ["id", "name", "groups_id"]
+    ],
+    "kwargs": {}
+  }
+}
+  dispatch(postcreatevisit(payload, "groupList"));
+  console.log("Fetching group list for UID:", uid);
+}, [dispatch, uid]);
 
   const groupListData = useSelector((state) => state.postcreatevisitReducer.data["groupList"]);
-  useEffect(() => {
-    if (Array.isArray(groupListData) && groupListData.length > 0) {
-      setUserGroups(groupListData[0].groups_id || []);
-    }
-  }, [groupListData])
+useEffect(() => {
+  if (Array.isArray(groupListData) && groupListData.length > 0) {
+    setUserGroups(groupListData[0].groups_id || []);
+  }
+}, [groupListData])
 
-  useEffect(() => {
+useEffect(() => {
     if (postcreatevisitData) {
       const normalizedData = postcreatevisitData.map((item) => ({
         id: item.id,
@@ -104,23 +144,20 @@ const OpenEnquiry = () => {
         state: Array.isArray(item.state) && item.state.length > 1 ? item.state[1] : item.state || "N/A",
         followup_date: item.followup_date ? new Date(item.followup_date).toLocaleDateString() : "Not Scheduled",
       }));
-      console.log("Normalized Data:", normalizedData);
-      setEnquiries(normalizedData);
-    }
-  }, [postcreatevisitData]);
+    const visitedEnquiries = normalizedData.filter(
+      (item) => item.state === "visted"
+    );
 
+    console.log("Visited Enquiries:", visitedEnquiries);
+    setEnquiries(visitedEnquiries);
+  }
+}, [postcreatevisitData]);
 
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
-         onPress={() => {
-      if (item.so_number && item.so_number !== "N/A") {
-        console.log("Cannot navigate, SO number exists:", item.so_number);
-        return; 
-      }
-      navigation.navigate('Stage1', { enquiryData: item });
-    }}
+      onPress={() => navigation.navigate('Stage1', { enquiryData: item })}
     >
       <Text style={styles.title}>{item.reference}</Text>
       <Text>
@@ -147,22 +184,34 @@ const OpenEnquiry = () => {
       <Text>
         <Text style={styles.label}>SO Number:</Text> {item.so_number}
       </Text>
-      <Text>
-        <Text style={styles.label}>status:</Text> {item.state}
+          <Text>
+        <Text style={styles.label}>FollowupDate:</Text> {item.followup_date}
       </Text>
-      <Text>
-        <Text style={styles.label}>followUpDate :</Text> {item.followup_date}
-      </Text>
-{userGroups.includes(65) && (!item.so_number || item.so_number === "N/A") && (
+            <Text>
+              <Text style={styles.label}>status:</Text> {item.state}
+            </Text>
+          {userGroups.includes(65) && (
   <TouchableOpacity
-    style={styles.verifyBtn}
-    onPress={() => console.log("Verify clicked", item.id)}
+    style={[
+      styles.verifyBtn,
+      item.state === "verified" && { backgroundColor: "#6c757d" }
+    ]}
+    onPress={() => onHandlingVerify(item.id)}
+    disabled={verifyingId === item.id || item.state === "verified"}
   >
-    <Text style={styles.verifyText}>Verify</Text>
+    <Text style={styles.verifyText}>
+      {verifyingId === item.id
+        ? "Verifying..."
+        : item.state === "verified"
+        ? "Verified"
+        : "Verify"}
+    </Text>
   </TouchableOpacity>
 )}
     </TouchableOpacity>
   );
+
+
   if (postcreatevisitLoading) {
     return (
       <View style={styles.loader}>
@@ -180,11 +229,16 @@ const OpenEnquiry = () => {
         contentContainerStyle={{ paddingBottom: 20 }}
         ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 20 }}>No enquiries found.</Text>}
       />
+      {verifyingId && (
+      <View style={styles.centerLoader}>
+        <ActivityIndicator size="large" color="#3966c2" />
+      </View>
+    )}
     </View>
   );
 };
 
-export default OpenEnquiry;
+export default ApprovalPending;
 
 const styles = StyleSheet.create({
   container: {
@@ -219,16 +273,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   verifyBtn: {
-    position: "absolute",
-    bottom: 10,
-    right: 10,
-    backgroundColor: "#28a745",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 8
-  },
-  verifyText: {
-    color: "#fff",
-    fontWeight: "bold"
-  }
+  position: "absolute",
+  bottom: 10,
+  right: 10,
+  backgroundColor: "#28a745",
+  paddingVertical: 6,
+  paddingHorizontal: 12,
+  borderRadius: 8
+},
+verifyText: {
+  color: "#fff",
+  fontWeight: "bold"
+}
 });

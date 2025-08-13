@@ -1,37 +1,39 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { postcreatevisit } from '../../../redux/action';
+import { postcreatevisit,postauthendication } from '../../../redux/action';
 import { useNavigation } from '@react-navigation/native';
 
-const OpenEnquiry = () => {
+const ApprovedList = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const [userGroups, setUserGroups] = useState([]);
-  const uid = useSelector(state => state.postauthendicationReducer.uid);
+const [userGroups, setUserGroups] = useState([]);
+const uid = useSelector(state => state.postauthendicationReducer.uid);
+console.log("UID from postauthendicationReducer:", uid);
   const postcreatevisitData = useSelector(
     (state) => state.postcreatevisitReducer.data["openEnquiryList"]
   );
   const postcreatevisitLoading = useSelector(
     (state) => state.postcreatevisitReducer.loading["openEnquiryList"]
   );
+  console.log("postcreactwwfwgfwhchwapproval", postcreatevisitData)
 
   const [enquiries, setEnquiries] = useState([]);
 
   useEffect(() => {
     const payload = {
-      "jsonrpc": "2.0",
-      "method": "call",
-      "params": {
-        "model": "customer.visit",
-        "method": "search_read",
-        "args": [],
-        "kwargs": {
-          "fields": ["id",
+      jsonrpc: "2.0",
+      method: "call",
+      params: {
+        model: "customer.visit",
+        method: "search_read",
+        args: [],
+        kwargs: {
+          fields: [
+            "id",
             "name",
             "partner_id",
             "state",
-            "followup_date",
             "brand",
             "visit_purpose",
             "product_category",
@@ -39,41 +41,45 @@ const OpenEnquiry = () => {
             "remarks",
             "so_id",
             "outcome_visit",
-            "lost_reason"]
-        }
-      }
-    }
-    dispatch(postcreatevisit(payload, "openEnquiryList"));
+            "lost_reason",
+            "followup_date"
+          ],
+        },
+      },
+    };
+    dispatch(postcreatevisit(payload, "approvalPendingList"));
+console.log("helloooceefef",postcreatevisit);
+
   }, [dispatch]);
 
   useEffect(() => {
-    if (!uid) return;
+      if (!uid) return;
 
     const payload = {
-      "jsonrpc": "2.0",
-      "method": "call",
-      "params": {
-        "model": "res.users",
-        "method": "read",
-        "args": [
-          [uid],
-          ["id", "name", "groups_id"]
-        ],
-        "kwargs": {}
-      }
-    }
-    dispatch(postcreatevisit(payload, "groupList"));
-    console.log("Fetching group list for UID:", uid);
-  }, [dispatch, uid]);
+  "jsonrpc": "2.0",
+  "method": "call",
+  "params": {
+    "model": "res.users",
+    "method": "read",
+    "args": [
+      [uid],
+      ["id", "name", "groups_id"]
+    ],
+    "kwargs": {}
+  }
+}
+  dispatch(postcreatevisit(payload, "groupList"));
+  console.log("Fetching group list for UID:", uid);
+}, [dispatch, uid]);
 
   const groupListData = useSelector((state) => state.postcreatevisitReducer.data["groupList"]);
-  useEffect(() => {
-    if (Array.isArray(groupListData) && groupListData.length > 0) {
-      setUserGroups(groupListData[0].groups_id || []);
-    }
-  }, [groupListData])
+useEffect(() => {
+  if (Array.isArray(groupListData) && groupListData.length > 0) {
+    setUserGroups(groupListData[0].groups_id || []);
+  }
+}, [groupListData])
 
-  useEffect(() => {
+useEffect(() => {
     if (postcreatevisitData) {
       const normalizedData = postcreatevisitData.map((item) => ({
         id: item.id,
@@ -104,23 +110,20 @@ const OpenEnquiry = () => {
         state: Array.isArray(item.state) && item.state.length > 1 ? item.state[1] : item.state || "N/A",
         followup_date: item.followup_date ? new Date(item.followup_date).toLocaleDateString() : "Not Scheduled",
       }));
-      console.log("Normalized Data:", normalizedData);
-      setEnquiries(normalizedData);
-    }
-  }, [postcreatevisitData]);
+    const visitedEnquiries = normalizedData.filter(
+      (item) => item.state === "verify"
+    );
 
+    console.log("Visited Enquiries:", visitedEnquiries);
+    setEnquiries(visitedEnquiries);
+  }
+}, [postcreatevisitData]);
 
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
-         onPress={() => {
-      if (item.so_number && item.so_number !== "N/A") {
-        console.log("Cannot navigate, SO number exists:", item.so_number);
-        return; 
-      }
-      navigation.navigate('Stage1', { enquiryData: item });
-    }}
+      onPress={() => navigation.navigate('Stage1', { enquiryData: item })}
     >
       <Text style={styles.title}>{item.reference}</Text>
       <Text>
@@ -147,22 +150,16 @@ const OpenEnquiry = () => {
       <Text>
         <Text style={styles.label}>SO Number:</Text> {item.so_number}
       </Text>
-      <Text>
-        <Text style={styles.label}>status:</Text> {item.state}
+          <Text>
+        <Text style={styles.label}>FollowupDate:</Text> {item.followup_date}
       </Text>
-      <Text>
-        <Text style={styles.label}>followUpDate :</Text> {item.followup_date}
-      </Text>
-{userGroups.includes(65) && (!item.so_number || item.so_number === "N/A") && (
-  <TouchableOpacity
-    style={styles.verifyBtn}
-    onPress={() => console.log("Verify clicked", item.id)}
-  >
-    <Text style={styles.verifyText}>Verify</Text>
-  </TouchableOpacity>
-)}
+            <Text>
+              <Text style={styles.label}>status:</Text> {item.state}
+            </Text>
     </TouchableOpacity>
   );
+
+
   if (postcreatevisitLoading) {
     return (
       <View style={styles.loader}>
@@ -184,7 +181,7 @@ const OpenEnquiry = () => {
   );
 };
 
-export default OpenEnquiry;
+export default ApprovedList;
 
 const styles = StyleSheet.create({
   container: {
@@ -219,16 +216,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   verifyBtn: {
-    position: "absolute",
-    bottom: 10,
-    right: 10,
-    backgroundColor: "#28a745",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 8
-  },
-  verifyText: {
-    color: "#fff",
-    fontWeight: "bold"
-  }
+  position: "absolute",
+  bottom: 10,
+  right: 10,
+  backgroundColor: "#28a745",
+  paddingVertical: 6,
+  paddingHorizontal: 12,
+  borderRadius: 8
+},
+verifyText: {
+  color: "#fff",
+  fontWeight: "bold"
+}
 });

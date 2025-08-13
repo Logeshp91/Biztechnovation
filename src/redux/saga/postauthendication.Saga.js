@@ -12,6 +12,7 @@ function* postauthendicationSaga(action) {
       yield put({
         type: actionTypes.POST_POSTAUTHENDICATION_SUCCESS,
         payload: data.result,
+       uid: data.result?.uid || null 
       });
     } else if (data?.error) {
       yield put({

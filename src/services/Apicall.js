@@ -1,11 +1,13 @@
 // Apicall.js
 import axios from 'axios';
+import { postAccessRead } from '../redux/action';
 
 export const baseUrl = "https://testserver.biztechnovations.com";
 // export const baseUrl = "https://devserver.biztechnovations.com";
 export const endPoint = {
     postauthendication: '/web/session/authenticate',
     postcreatevisit: '/web/dataset/call_kw',
+    postAccessRead:'/api/visit/verified'
 };
 const headers = {
     'Content-Type': 'application/json',

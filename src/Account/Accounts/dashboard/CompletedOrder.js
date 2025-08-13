@@ -41,15 +41,15 @@ const postcreatevisitLoading = useSelector(
         },
       },
     };
-dispatch(postcreatevisit(payload, "openEnquiryList"));
+dispatch(postcreatevisit(payload, "completedOrdersList"));
     
-  }, []);
+  }, [dispatch]);
 
 useEffect(() => {
   if (postcreatevisitData) {
     const normalizedData = postcreatevisitData
       .filter(
-        (item) => Array.isArray(item.so_id) && item.so_id.length > 1 // ✅ Only completed orders
+        (item) => Array.isArray(item.so_id) && item.so_id.length > 1 
       )
       .map((item) => ({
         id: item.id,
@@ -69,6 +69,10 @@ useEffect(() => {
             : item.product_category || "N/A",
         qty: item.required_qty ?? "N/A",
         remarks: item.remarks || "N/A",
+                outcome_visit:
+          Array.isArray(item.outcome_visit) && item.outcome_visit.length > 1
+            ? item.outcome_visit[1]
+            : item.outcome_visit || "N/A",
         so_number:
           Array.isArray(item.so_id) && item.so_id.length > 1
             ? item.so_id[1]
@@ -85,7 +89,7 @@ useEffect(() => {
 const renderItem = ({ item }) => (
   <TouchableOpacity
     style={styles.card}
-   onPress={() => navigation.navigate('Stage1', { enquiryData: item })}
+   onPress={() => { enquiryData: item }}
   >
     <Text style={styles.title}>{item.reference}</Text>
     <Text>
@@ -106,6 +110,9 @@ const renderItem = ({ item }) => (
     <Text>
       <Text style={styles.label}>Remarks:</Text> {item.remarks}
     </Text>
+          <Text>
+            <Text style={styles.label}>Visit Outcomes:</Text> {item.outcome_visit}
+          </Text>
             <Text>
   <Text style={styles.label}>SO Number:</Text> {item.so_number}
     </Text>

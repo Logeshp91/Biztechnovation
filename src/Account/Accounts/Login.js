@@ -30,7 +30,7 @@ useEffect(() => {
     Alert.alert('Login Failed', errorMsg);
     setPassword('');
   }
-}, [postauthendicationLoading, postauthendicationData, postauthendicationError, postauthendicationErrorInvalid]);
+}, [postauthendicationLoading, postauthendicationData, postauthendicationError, postauthendicationErrorInvalid, navigation]);
 
 
   useEffect(() => {

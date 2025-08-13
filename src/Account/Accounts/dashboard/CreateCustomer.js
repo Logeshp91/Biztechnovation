@@ -202,7 +202,6 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingHorizontal: 12,
         backgroundColor: '#fff',
-        borderWidth: 1,
         marginBottom: '2%',
         marginLeft: 10
     },
@@ -213,7 +212,6 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingHorizontal: 12,
         backgroundColor: '#fff',
-        borderWidth: 1,
         marginBottom: '2%'
     },
     dropdown1: {
