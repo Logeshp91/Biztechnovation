@@ -90,7 +90,8 @@ useFocusEffect(
             "required_qty",
             "remarks",
             "so_id",
-            "outcome_visit"
+            "outcome_visit",
+            "create_date"
        ],
         },
       },

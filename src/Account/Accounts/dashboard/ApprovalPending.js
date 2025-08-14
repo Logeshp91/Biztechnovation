@@ -49,6 +49,7 @@ const ApprovalPending = () => {
           fields: [
             "id",
             "name",
+            "create_date",
             "partner_id",
             "state",
             "brand",
@@ -124,6 +125,8 @@ const ApprovalPending = () => {
         followup_date: item.followup_date
           ? new Date(item.followup_date).toLocaleDateString()
           : "Not Scheduled",
+          create_date: formatDateTime(item.create_date)
+
       }));
 
       const visitedEnquiries = normalizedData.filter(
@@ -140,6 +143,27 @@ const ApprovalPending = () => {
       setUserGroups(groupListData[0].groups_id || []);
     }
   }, [groupListData]);
+  const formatDateTime = (dateStr) => {
+  if (!dateStr) return "N/A";
+
+  // Convert "YYYY-MM-DD HH:mm:ss" → "YYYY-MM-DDTHH:mm:ss" (ISO format)
+  const isoStr = dateStr.replace(" ", "T");
+  const dateObj = new Date(isoStr);
+
+  if (isNaN(dateObj.getTime())) return "N/A"; // check if date is valid
+
+  const day = String(dateObj.getDate()).padStart(2, "0");
+  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const year = dateObj.getFullYear();
+
+  let hours = dateObj.getHours();
+  const minutes = String(dateObj.getMinutes()).padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12 || 12; // convert 0 to 12
+  const strHours = String(hours).padStart(2, "0");
+
+  return `${day}/${month}/${year} ${strHours}:${minutes} ${ampm}`;
+};
 
   const filteredEnquiries = enquiries.filter((item) => {
     const text = searchText.toLowerCase();
@@ -190,7 +214,10 @@ const ApprovalPending = () => {
       onPress={() => { enquiryData: item }}
     >
       <Text style={styles.title}>{item.reference}</Text>
-      <Text>
+                  <Text>
+              <Text style={styles.label}>Created on:</Text> {item.create_date}
+            </Text>
+      <Text> 
         <Text style={styles.label}>Purpose:</Text> {item.purpose_of_visit}
       </Text>
       <Text>

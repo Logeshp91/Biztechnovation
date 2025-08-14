@@ -33,6 +33,7 @@ const ApprovedList = () => {
         kwargs: {
           fields: [
             "id",
+             "create_date",
             "name",
             "partner_id",
             "state",
@@ -109,6 +110,8 @@ const ApprovedList = () => {
           Array.isArray(item.so_id) && item.so_id.length > 1
             ? item.so_id[1]
             : "N/A",
+            create_date: formatDateTime(item.create_date),
+
         state: Array.isArray(item.state) && item.state.length > 1 ? item.state[1] : item.state || "N/A",
         followup_date: item.followup_date ? new Date(item.followup_date).toLocaleDateString() : "Not Scheduled",
       }));
@@ -121,6 +124,27 @@ const ApprovedList = () => {
     }
   }, [postcreatevisitData]);
 
+  const formatDateTime = (dateStr) => {
+  if (!dateStr) return "N/A";
+
+  // Convert "YYYY-MM-DD HH:mm:ss" → "YYYY-MM-DDTHH:mm:ss" (ISO format)
+  const isoStr = dateStr.replace(" ", "T");
+  const dateObj = new Date(isoStr);
+
+  if (isNaN(dateObj.getTime())) return "N/A"; // check if date is valid
+
+  const day = String(dateObj.getDate()).padStart(2, "0");
+  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const year = dateObj.getFullYear();
+
+  let hours = dateObj.getHours();
+  const minutes = String(dateObj.getMinutes()).padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12 || 12; // convert 0 to 12
+  const strHours = String(hours).padStart(2, "0");
+
+  return `${day}/${month}/${year} ${strHours}:${minutes} ${ampm}`;
+};
   const filteredEnquiries = enquiries.filter((item) => {
     const text = searchText.toLowerCase();
     return (
@@ -142,6 +166,9 @@ const ApprovedList = () => {
       onPress={() => navigation.navigate('Stage1', { enquiryData: item })}
     >
       <Text style={styles.title}>{item.reference}</Text>
+            <Text>
+        <Text style={styles.label}>Created on:</Text> {item.create_date}
+      </Text>
       <Text>
         <Text style={styles.label}>Purpose:</Text> {item.purpose_of_visit}
       </Text>
