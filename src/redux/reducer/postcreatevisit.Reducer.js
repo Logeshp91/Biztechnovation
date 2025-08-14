@@ -11,7 +11,7 @@ const postcreatevisitReducer = (state = initial, action) => {
     case actionTypes.POST_CREATEVISIT_REQUEST:
       return { 
         ...state, 
-        loading: { ...state.loading, [action.requestKey]: true },
+        loading: { ...state.loading, [action.requestKey]: false },
         error: { ...state.error, [action.requestKey]: null }
       };
 

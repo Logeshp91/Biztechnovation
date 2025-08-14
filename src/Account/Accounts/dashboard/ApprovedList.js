@@ -1,15 +1,17 @@
 import React, { useEffect, useId, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { postcreatevisit,postauthendication } from '../../../redux/action';
+import { postcreatevisit, postauthendication } from '../../../redux/action';
 import { useNavigation } from '@react-navigation/native';
 
 const ApprovedList = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-const [userGroups, setUserGroups] = useState([]);
-const uid = useSelector(state => state.postauthendicationReducer.uid);
-console.log("UID from postauthendicationReducer:", uid);
+  const [userGroups, setUserGroups] = useState([]);
+  const [searchText, setSearchText] = useState("");
+
+  const uid = useSelector(state => state.postauthendicationReducer.uid);
+  console.log("UID from postauthendicationReducer:", uid);
   const postcreatevisitData = useSelector(
     (state) => state.postcreatevisitReducer.data["openEnquiryList"]
   );
@@ -48,38 +50,38 @@ console.log("UID from postauthendicationReducer:", uid);
       },
     };
     dispatch(postcreatevisit(payload, "approvalPendingList"));
-console.log("helloooceefef",postcreatevisit);
+    console.log("helloooceefef", postcreatevisit);
 
   }, [dispatch]);
 
   useEffect(() => {
-      if (!uid) return;
+    if (!uid) return;
 
     const payload = {
-  "jsonrpc": "2.0",
-  "method": "call",
-  "params": {
-    "model": "res.users",
-    "method": "read",
-    "args": [
-      [uid],
-      ["id", "name", "groups_id"]
-    ],
-    "kwargs": {}
-  }
-}
-  dispatch(postcreatevisit(payload, "groupList"));
-  console.log("Fetching group list for UID:", uid);
-}, [dispatch, uid]);
+      "jsonrpc": "2.0",
+      "method": "call",
+      "params": {
+        "model": "res.users",
+        "method": "read",
+        "args": [
+          [uid],
+          ["id", "name", "groups_id"]
+        ],
+        "kwargs": {}
+      }
+    }
+    dispatch(postcreatevisit(payload, "groupList"));
+    console.log("Fetching group list for UID:", uid);
+  }, [dispatch, uid]);
 
   const groupListData = useSelector((state) => state.postcreatevisitReducer.data["groupList"]);
-useEffect(() => {
-  if (Array.isArray(groupListData) && groupListData.length > 0) {
-    setUserGroups(groupListData[0].groups_id || []);
-  }
-}, [groupListData])
+  useEffect(() => {
+    if (Array.isArray(groupListData) && groupListData.length > 0) {
+      setUserGroups(groupListData[0].groups_id || []);
+    }
+  }, [groupListData])
 
-useEffect(() => {
+  useEffect(() => {
     if (postcreatevisitData) {
       const normalizedData = postcreatevisitData.map((item) => ({
         id: item.id,
@@ -110,15 +112,29 @@ useEffect(() => {
         state: Array.isArray(item.state) && item.state.length > 1 ? item.state[1] : item.state || "N/A",
         followup_date: item.followup_date ? new Date(item.followup_date).toLocaleDateString() : "Not Scheduled",
       }));
-    const visitedEnquiries = normalizedData.filter(
-      (item) => item.state === "verify"
+      const visitedEnquiries = normalizedData.filter(
+        (item) => item.state === "verify"
+      );
+
+      console.log("Visited Enquiries:", visitedEnquiries);
+      setEnquiries(visitedEnquiries);
+    }
+  }, [postcreatevisitData]);
+
+  const filteredEnquiries = enquiries.filter((item) => {
+    const text = searchText.toLowerCase();
+    return (
+      item.customer_name.toLowerCase().includes(text) ||
+      item.state.toLowerCase().includes(text) ||
+      item.followup_date.toLowerCase().includes(text) ||
+      item.purpose_of_visit.toLowerCase().includes(text) ||
+      item.outcome_visit.toLowerCase().includes(text) ||
+      item.brand.toLowerCase().includes(text) ||
+      item.product_category.toLowerCase().includes(text) ||
+      item.so_number.toLowerCase().includes(text) ||
+      item.reference.toLowerCase().includes(text)
     );
-
-    console.log("Visited Enquiries:", visitedEnquiries);
-    setEnquiries(visitedEnquiries);
-  }
-}, [postcreatevisitData]);
-
+  });
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
@@ -150,12 +166,12 @@ useEffect(() => {
       <Text>
         <Text style={styles.label}>SO Number:</Text> {item.so_number}
       </Text>
-          <Text>
+      <Text>
         <Text style={styles.label}>FollowupDate:</Text> {item.followup_date}
       </Text>
-            <Text>
-              <Text style={styles.label}>status:</Text> {item.state}
-            </Text>
+      <Text>
+        <Text style={styles.label}>status:</Text> {item.state}
+      </Text>
     </TouchableOpacity>
   );
 
@@ -170,8 +186,14 @@ useEffect(() => {
 
   return (
     <View style={styles.container}>
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search"
+        value={searchText}
+        onChangeText={setSearchText}
+      />
       <FlatList
-        data={enquiries}
+        data={filteredEnquiries}
         keyExtractor={(item) => String(item.id)}
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 20 }}
@@ -200,6 +222,8 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
   },
+  searchInput: { backgroundColor: "#fff", padding: 10, borderRadius: 8, marginBottom: 15 },
+
   title: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -216,16 +240,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   verifyBtn: {
-  position: "absolute",
-  bottom: 10,
-  right: 10,
-  backgroundColor: "#28a745",
-  paddingVertical: 6,
-  paddingHorizontal: 12,
-  borderRadius: 8
-},
-verifyText: {
-  color: "#fff",
-  fontWeight: "bold"
-}
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    backgroundColor: "#28a745",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8
+  },
+  verifyText: {
+    color: "#fff",
+    fontWeight: "bold"
+  }
 });
