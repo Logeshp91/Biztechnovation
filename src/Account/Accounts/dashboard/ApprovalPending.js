@@ -181,31 +181,37 @@ const ApprovalPending = () => {
   });
 
   /** ✅ Handle verify click */
-  const onHandlingVerify = async (id) => {
-    setVerifyingId(id);
+const onHandlingVerify = async (id) => {
+  // ✅ Immediately update UI
+  setEnquiries((prev) =>
+    prev.map((item) =>
+      item.id === id ? { ...item, state: "verified" } : item
+    )
+  );
 
-    const payload = {
-      jsonrpc: "2.0",
-      method: "call",
-      params: { visit_id: id },
-    };
-
-    try {
-      const response = await dispatch(postAccessRead(payload, "verifyVisit"));
-      const result = response?.data?.result;
-
-      if (result?.success) {
-        // Refresh API list after verification
-        fetchOpenEnquiries();
-      } else {
-        console.warn("Verification failed:", result?.message);
-      }
-    } catch (error) {
-      console.error("Verify API failed:", error);
-    } finally {
-      setVerifyingId(null);
-    }
+  // Then do the API call (optional)
+  setVerifyingId(id);
+  const payload = {
+    jsonrpc: "2.0",
+    method: "call",
+    params: { visit_id: id },
   };
+
+  try {
+    const response = await dispatch(postAccessRead(payload, "verifyVisit"));
+    const result = response?.data?.result;
+
+    if (result && result.success) {
+      console.log("Verified on server:", result.message);
+    } else {
+      console.warn("Verification failed:", result?.message || "No message");
+    }
+  } catch (error) {
+    console.error("Verify API failed:", error);
+  } finally {
+    setVerifyingId(null);
+  }
+};
 
   /** ✅ Render each card */
   const renderItem = ({ item }) => (
@@ -249,23 +255,23 @@ const ApprovalPending = () => {
       </Text>
 
       {userGroups.includes(65) && (
-        <TouchableOpacity
-          style={[
-            styles.verifyBtn,
-            item.state === "verified" && { backgroundColor: "#6c757d" },
-          ]}
-          onPress={() => onHandlingVerify(item.id)}
-          disabled={verifyingId === item.id || item.state === "verified"}
-        >
-          <Text style={styles.verifyText}>
-            {verifyingId === item.id
-              ? "Verifying..."
-              : item.state === "verified"
-                ? "Verified"
-                : "Verify"}
-          </Text>
-        </TouchableOpacity>
-      )}
+  <TouchableOpacity
+    style={[
+      styles.verifyBtn,
+      item.state === "verified" && { backgroundColor: "#6c757d" },
+    ]}
+    onPress={() => onHandlingVerify(item.id)}
+    disabled={verifyingId === item.id || item.state === "verified"}
+  >
+    <Text style={styles.verifyText}>
+      {verifyingId === item.id
+        ? "Verifying..."
+        : item.state === "verified"
+          ? "Verified"
+          : "Verify"}
+    </Text>
+  </TouchableOpacity>
+)}
     </TouchableOpacity>
   );
 

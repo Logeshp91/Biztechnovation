@@ -7,7 +7,8 @@ export const baseUrl = "https://testserver.biztechnovations.com";
 export const endPoint = {
     postauthendication: '/web/session/authenticate',
     postcreatevisit: '/web/dataset/call_kw',
-    postAccessRead:'/api/visit/verified'
+    postAccessRead:'/api/visit/verified',
+    postconvert:"/api/visit/convert"
 };
 const headers = {
     'Content-Type': 'application/json',

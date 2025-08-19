@@ -8,6 +8,7 @@ import Contact from '../Account/Accounts/Tabscreens/Contact';
 import About from '../Account/Accounts/Tabscreens/About';
 import { View, StyleSheet,TextInput, Modal, Pressable, Dimensions, Image, Text, View as RNView } from 'react-native';
 import CustomDrawerContent from './CustomDrawerContent';
+import AnimatedTextHeader from './AnimatedTextHeader';
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 import { useNavigation } from '@react-navigation/native';
@@ -83,37 +84,23 @@ const TabNavigation = () => {
           name=" "
           options={({ navigation }) => ({
             headerShown: true,
-            headerRight: () => (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  backgroundColor: '#ffffffff',
-                  borderRadius: 10,
-                  paddingHorizontal: 8,
-                  height: 40,
-                  alignItems: 'center',
-                  width: '80%',
-                  marginRight: 10
-                }}
-              >
-                <FontAwesome
-                  name="search"
-                  size={20}
-                  color="black"
-                  style={{ marginLeft: 5 }}
-                />
-                <TextInput
-                  placeholder="Search for Number, Products"
-                  placeholderTextColor="#666"
-                  style={{
-                    fontSize: 12,
-                    color: '#000',
-                    marginLeft: 5
-                  }}
-                />
+           headerRight: () => (
+  <View
+    style={{
+      flexDirection: 'row',
+      backgroundColor: '#ffffffff',
+      borderRadius: 10,
+      paddingHorizontal: 8,
+      height: 40,
+      alignItems: 'center',
+      width: '80%',
+      marginRight: 10
+    }}
+  >
+<AnimatedTextHeader />
+  </View>
+)
 
-              </View>
-            ),
           })}
         >
           {() => (

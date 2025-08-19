@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ccc',
   },
   drawerItem: {
-    fontSize: 20,
+    fontSize: 40,
     paddingVertical: 15,
     paddingHorizontal: 20,
     marginHorizontal: 10,

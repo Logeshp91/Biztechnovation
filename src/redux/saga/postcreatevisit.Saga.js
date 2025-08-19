@@ -11,6 +11,7 @@ function* postcreatevisitSaga(action) {
       endPoint.postcreatevisit,
       payload
     );
+    console.log("response",response)
     if (response?.status === 200 && response?.data?.result) {
       yield put({
         type: actionTypes.POST_CREATEVISIT_SUCCESS,

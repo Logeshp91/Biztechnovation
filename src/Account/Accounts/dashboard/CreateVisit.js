@@ -220,50 +220,61 @@ const CreateVisit = () => {
 
           />
 
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => {
-              if (
-                !enquiryChannel ||
-                !customerName ||
-                !purposeOfVisit ||
-                !brand ||
-                !productCategory ||
-                 !(purposeOfVisit === 'STOCK' ? StockQty : quantityTons) ||
-                !remarks
-              ) {
-                alert("Please fill all required fields before submitting.");
-                return;
-              }
+<TouchableOpacity
+  style={styles.button}
+  onPress={() => {
+    // Validate all required fields
+    if (
+      !enquiryChannel ||
+      !customerName ||
+      !purposeOfVisit ||
+      !brand ||
+      !productCategory ||
+      !(purposeOfVisit === 'STOCK' ? StockQty : quantityTons) ||
+      !remarks
+    ) {
+      alert("Please fill all required fields before submitting.");
+      return;
+    }
 
-              const data = {
-                jsonrpc: "2.0",
-                method: "call",
-                params: {
-                  model: "customer.visit",
-                  method: "create",
-                  args: [
-                    {
-                      enquiry_type: enquiryChannel,
-                      partner_id: customerName,
-                      visit_purpose: purposeOfVisit,
-                      brand: brand,
-                      product_category: productCategory,
-                      required_qty: quantityTons,
-                      remarks: remarks,
-                      stock_qty:StockQty
-                    }
-                  ],
-                  kwargs: {}
-                }
-              };
+    // Build payload
+    const visitPayload = {
+      enquiry_type: enquiryChannel,
+      partner_id: customerName,
+      visit_purpose: purposeOfVisit,
+      brand: brand,
+      product_category: productCategory,
+      remarks: remarks,
+    };
 
-              dispatch(postcreatevisit(data));
-              navigation.navigate('TabNavigation');
-            }}
-          >
-            <Text style={styles.buttonText}>Submit</Text>
-          </TouchableOpacity>
+    // Add only the relevant quantity field
+    if (purposeOfVisit === 'STOCK') {
+      visitPayload.stock_qty = StockQty;
+    } else {
+      visitPayload.required_qty = quantityTons;
+    }
+
+    // Wrap payload in API data structure
+    const data = {
+      jsonrpc: "2.0",
+      method: "call",
+      params: {
+        model: "customer.visit",
+        method: "create",
+        args: [visitPayload],
+        kwargs: {}
+      }
+    };
+
+    dispatch(postcreatevisit(data));
+
+    // Navigate back
+    navigation.navigate('TabNavigation');
+  }}
+>
+  <Text style={styles.buttonText}>Submit</Text>
+</TouchableOpacity>
+
 
         </ScrollView>
       </View>

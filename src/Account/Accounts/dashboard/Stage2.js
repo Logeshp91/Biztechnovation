@@ -12,13 +12,12 @@ import {
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useDispatch, useSelector } from 'react-redux';
-import { postcreatevisit } from '../../../redux/action';
+import { postcreatevisit ,postConvert,} from '../../../redux/action';
 
-const Stage2 = () => {
+const Stage2 = ({navigation}) => {
   const route = useRoute();
   const { enquiryData } = route.params || {};
   const dispatch = useDispatch();
-  const navigation = useNavigation();
 
   // Selected values states
   const [BillingCompany, setBillingCompany] = useState(null);
@@ -26,6 +25,7 @@ const Stage2 = () => {
   const [DeliveryType, setDeliveryType] = useState(null);
   const [PaymentTerm, setPaymentTerm] = useState(null);
   const [BillingType, setBillingType] = useState(null);
+const [isSubmitted, setIsSubmitted] = useState(false);
 
   // Dropdown option states
   const [billingCompanies, setBillingCompanies] = useState([]);
@@ -35,12 +35,14 @@ const Stage2 = () => {
   const [billingTypes, setBillingTypes] = useState([]);
 
   const postcreatevisitData = useSelector(state => state.postcreatevisitReducer.data);
+const convertEnquiryResult = useSelector(state => state.postConvertReducer.data);
 
   const customerName = enquiryData?.customer_name || 'N/A';
   const purposeOfVisit = enquiryData?.purpose_of_visit || 'N/A';
   const brand = enquiryData?.brand || 'N/A';
   const productCategory = enquiryData?.product_category || 'N/A';
   const quantityTons = enquiryData?.qty || 'N/A';
+
 
   const items = {
     company_model: 'res.company',
@@ -80,6 +82,12 @@ const Stage2 = () => {
       },
     }
   });
+  const isFormValid =
+  BillingCompany !== null &&
+  BillingBranch !== null &&
+  DeliveryType !== null &&
+  PaymentTerm !== null &&
+  BillingType !== null;
 
   const onHandlebillingcompany = () => {
     dispatch(postcreatevisit(dataParams("company"), "billingcompany"));
@@ -147,31 +155,50 @@ const Stage2 = () => {
     }
   }, [postcreatevisitData]);
 
-  const handleSubmit = () => {
-    const data = {
-      jsonrpc: '2.0',
-      method: 'call',
-      params: {
-        model: 'customer.visit',
-        method: 'write',
-        args: [
-          [enquiryData.id],
-          {
-            company: BillingCompany,
-            billing_branch_id: BillingBranch,
-            incoterm_id: DeliveryType,
-            payment_term_id: PaymentTerm,
-            billing_type: BillingType,
-          },
-        ],
-        kwargs: {},
-      },
-    };
-
-    dispatch(postcreatevisit(data));
-    console.log("postttttt",postcreatevisit)
+const handleSubmit = async () => {
+  const data = {
+    jsonrpc: '2.0',
+    method: 'call',
+    params: {
+      model: 'customer.visit',
+      method: 'write',
+      args: [
+        [enquiryData.id],
+        {
+          company: BillingCompany,
+          billing_branch_id: BillingBranch,
+          incoterm_id: DeliveryType,
+          payment_term_id: PaymentTerm,
+          billing_type: BillingType,
+        },
+      ],
+      kwargs: {},
+    },
   };
 
+  try {
+    const response = await dispatch(postcreatevisit(data)); // ✅ Await the API call
+    console.log('Submit API Response:', response); // ✅ Log actual response
+    setIsSubmitted(true); // ✅ Only set if success
+  } catch (error) {
+    console.error('Submit API Error:', error); // ✅ Catch errors
+    // Optionally show error to user
+  }
+};
+
+
+const handleConvertEnquiry = async () => {
+  const data = {
+    jsonrpc: "2.0",
+    method: "call",
+    params: {
+      visit_id: enquiryData.id, 
+    },
+  };
+
+  dispatch(postConvert(data)); // no await needed
+      navigation.navigate('TabNavigation');
+};
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <ImageBackground
@@ -266,9 +293,29 @@ const Stage2 = () => {
           placeholderStyle={{ color: '#c6c4c4ff', fontSize: 11.5 }}
         />
       </View>
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Submit</Text>
-      </TouchableOpacity>
+<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+  <TouchableOpacity
+    style={[
+      styles.button,
+      { backgroundColor: isFormValid ? '#0452A6' : '#a0a0a0' }, // disabled color
+    ]}
+    onPress={handleSubmit}
+    disabled={!isFormValid} // ✅ disable until all fields filled
+  >
+    <Text style={styles.buttonText}>Submit</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity
+    style={[
+      styles.button,
+      { backgroundColor: isSubmitted ? '#0452A6' : '#a0a0a0' }, 
+    ]}
+    onPress={handleConvertEnquiry}
+    disabled={!isSubmitted} 
+  >
+    <Text style={styles.buttonText}>Convert Enquiry</Text>
+  </TouchableOpacity>
+</View>
     </ScrollView>
   );
 };

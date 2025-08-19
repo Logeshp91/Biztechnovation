@@ -20,7 +20,7 @@ const Login = ({ navigation }) => {
 useEffect(() => {
   if (postauthendicationLoading) return;
 
-  const uid = postauthendicationData?.uid;
+  const uid = postauthendicationData?.uid; 
   const errorMsg = postauthendicationError || postauthendicationErrorInvalid;
 
   if (uid) {
@@ -30,7 +30,7 @@ useEffect(() => {
     Alert.alert('Login Failed', errorMsg);
     setPassword('');
   }
-}, [postauthendicationLoading, postauthendicationData, postauthendicationError, postauthendicationErrorInvalid, navigation]);
+}, [postauthendicationLoading, postauthendicationData, postauthendicationError, postauthendicationErrorInvalid]);
 
 
   useEffect(() => {
@@ -38,6 +38,39 @@ useEffect(() => {
       setPhone(mobileNumber);
     }
   }, [mobileNumber]);
+
+
+
+  // const enableGPS = () => {
+  //   RNAndroidLocationEnabler.promptForEnableLocationIfNeeded({
+  //     interval: 10000,
+  //     fastInterval: 5000,
+  //   })
+  //     .then(() => {
+  //       getCurrentLocation();
+  //     })
+  //     .catch((err) => {
+  //       Alert.alert('Location Error', 'Please enable location services.');
+  //     });
+  // };
+
+  const getCurrentLocation = () => {
+    Geolocation.getCurrentPosition(
+      (position) => {
+        setLocation(position);
+      },
+      (error) => {
+        Alert.alert('Error getting location', error.message);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 10000,
+      },
+    );
+  };
+
+
 
   useEffect(() => {
     const fetchSimNumber = async () => {
@@ -143,6 +176,7 @@ const loginPayload = {
     "password": password.trim(),
   },
 };
+
 dispatch(postauthendication(loginPayload));
 };
 
@@ -186,11 +220,11 @@ dispatch(postauthendication(loginPayload));
 
             <TextInput
   style={styles.phoneInput}
-  keyboardType="default" // Changed from 'phone-pad'
+  keyboardType="default" 
   placeholder="Enter username"
   placeholderTextColor="#999"
   value={phone}
-  onChangeText={(text) => setPhone(text)} // Removed number-only cleaning
+  onChangeText={(text) => setPhone(text)} 
 />
             {/* {phone.length === 10 && (
               <Image source={require('../../assets/check.png')} style={styles.icon} />
