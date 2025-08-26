@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -6,59 +6,97 @@ import Screens from '../Account/Accounts/Tabscreens/Screens';
 import Settings from '../Account/Accounts/Tabscreens/Settings';
 import Contact from '../Account/Accounts/Tabscreens/Contact';
 import About from '../Account/Accounts/Tabscreens/About';
-import { View, StyleSheet,TextInput, Modal, Pressable, Dimensions, Image, Text, View as RNView } from 'react-native';
+import { View, StyleSheet, TextInput, Modal, Pressable, Dimensions, Image, Easing, Text, TouchableOpacity, Animated, View as RNView } from 'react-native';
 import CustomDrawerContent from './CustomDrawerContent';
+import Icon from 'react-native-vector-icons/Ionicons';
 import AnimatedTextHeader from './AnimatedTextHeader';
+import { useNavigation } from '@react-navigation/native';
+
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
-import { useNavigation } from '@react-navigation/native';
 
 const TabNavigation = () => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false); // actual <Modal>
+  const [isPanelVisible, setIsPanelVisible] = useState(false); // for animation
+  const [notificationVisible, setNotificationVisible] = useState(false);
+  const PANEL_WIDTH = 250;
+  const slideAnim = useRef(new Animated.Value(PANEL_WIDTH)).current;
   const screenWidth = Dimensions.get('window').width;
   const navigation = useNavigation();
   const EmptyScreen = () => {
     return null;
   };
-  
+
+
+  useEffect(() => {
+    if (isPanelVisible) {
+      // reset first (offscreen)
+      slideAnim.setValue(PANEL_WIDTH);
+
+      // small delay so RN applies the offscreen position before mounting
+      setTimeout(() => {
+        setIsModalVisible(true);
+
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 400,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }).start();
+      }, 0);
+
+    } else {
+      Animated.timing(slideAnim, {
+        toValue: PANEL_WIDTH,
+        duration: 400,
+        easing: Easing.in(Easing.ease),
+        useNativeDriver: true,
+      }).start(() => {
+        setIsModalVisible(false);
+      });
+    }
+  }, [isPanelVisible]);
+
+
   return (
     <>
-<Modal
-  visible={modalVisible}
-  transparent
-  animationType="slide"
-  onRequestClose={() => setModalVisible(false)}
->
-  <View style={styles.modalContainer}>
-    <View style={styles.modalContent}>
-      <View style={styles.row}>
-        <Pressable
-          style={styles.card}
-          onPress={() => {
-            setModalVisible(false);
-            navigation.navigate('CreateCustomer');
-          }}
-        >
-          <Text style={styles.cardText}>Create Customer</Text>
-        </Pressable>
-      </View>
-      <View style={styles.row}>
-        <Pressable
-          style={styles.card}
-          onPress={() => {
-            setModalVisible(false);
-            navigation.navigate('CreateVisit');
-         }}
-        >
-          <Text style={styles.cardText}>Create Visit</Text>
-        </Pressable>
-      </View>
-      <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
-        <Text style={styles.closeButtonText}>Close</Text>
-      </Pressable>
-    </View>
-  </View>
-</Modal>
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.row}>
+              <Pressable
+                style={styles.card}
+                onPress={() => {
+                  setModalVisible(false);
+                  navigation.navigate('CreateCustomer');
+                }}
+              >
+                <Text style={styles.cardText}>Create Customer</Text>
+              </Pressable>
+            </View>
+            <View style={styles.row}>
+              <Pressable
+                style={styles.card}
+                onPress={() => {
+                  setModalVisible(false);
+                  navigation.navigate('CreateVisit');
+                }}
+              >
+                <Text style={styles.cardText}>Create Visit</Text>
+              </Pressable>
+            </View>
+            <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
 
 
 
@@ -84,22 +122,21 @@ const TabNavigation = () => {
           name=" "
           options={({ navigation }) => ({
             headerShown: true,
-           headerRight: () => (
-  <View
-    style={{
-      flexDirection: 'row',
-      backgroundColor: '#ffffffff',
-      borderRadius: 10,
-      paddingHorizontal: 8,
-      height: 40,
-      alignItems: 'center',
-      width: '80%',
-      marginRight: 10
-    }}
-  >
-<AnimatedTextHeader />
-  </View>
-)
+            headerRight: () => (
+              <View style={styles.headerRightWrapper}>
+                <AnimatedTextHeader />
+                <TouchableOpacity
+                  style={styles.notificationButton}
+                  onPress={() => setIsPanelVisible(true)} // 👈 open smoothly
+                >
+                  <Icon name="notifications-outline" size={24} color="#333" />
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>3</Text>
+                  </View>
+                </TouchableOpacity>
+
+              </View>
+            )
 
           })}
         >
@@ -193,6 +230,32 @@ const TabNavigation = () => {
           )}
         </Drawer.Screen>
       </Drawer.Navigator>
+      <Modal transparent visible={isModalVisible} animationType="none">
+        <Pressable style={styles.overlay} onPress={() => setIsPanelVisible(false)} />
+        <Animated.View
+          style={[
+            styles.notificationPanel,
+            { transform: [{ translateX: slideAnim }] },
+          ]}
+        >
+          <Text style={styles.panelTitle}>Notifications</Text>
+
+          <View style={styles.notificationItem}>
+            <Text style={styles.notificationText}>📢 New update available!</Text>
+          </View>
+          <View style={styles.notificationItem}>
+            <Text style={styles.notificationText}>👤 New customer added</Text>
+          </View>
+
+          <TouchableOpacity
+            style={styles.closePanelBtn}
+            onPress={() => setIsPanelVisible(false)} // 👈 smooth close
+          >
+            <Text style={styles.closePanelText}>Close</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      </Modal>
+
     </>
   );
 };
@@ -214,6 +277,51 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 5,
   },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.3)",
+  },
+  notificationPanel: {
+    position: "absolute",
+    top: 55,         
+    right: 10,       
+    width: 250,    
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 15,
+    elevation: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+  },
+  panelTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 15,
+    color: "#333",
+  },
+  notificationItem: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  notificationText: {
+    fontSize: 14,
+    color: "#555",
+  },
+  closePanelBtn: {
+    marginTop: 20,
+    backgroundColor: "#7630be",
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  closePanelText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -249,5 +357,32 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  headerRightWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 10,
+    gap: 10, // if RN < 0.71, use marginLeft on children instead
+  },
+  notificationButton: {
+    position: 'relative',
+    padding: 5,
+  },
+  badge: {
+    position: 'absolute',
+    right: 2,
+    top: 2,
+    backgroundColor: 'red',
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 3,
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
 });

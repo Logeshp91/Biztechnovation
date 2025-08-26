@@ -15,6 +15,11 @@ import OpenEnquiry from '../Account/Accounts/dashboard/OpenEnquiry';
 import ApprovalPending from '../Account/Accounts/dashboard/ApprovalPending';
 import ApprovedList from '../Account/Accounts/dashboard/ApprovedList';
 import LostList from '../Account/Accounts/dashboard/LostList';
+import SonumberList from '../Account/Accounts/dashboard/salesOrder/SonumberList';
+import SonumberSaleOrder from '../Account/Accounts/dashboard/salesOrder/SonumberSaleOrder';
+import BillSummary from '../Account/Accounts/dashboard/salesOrder/BillSummary';
+
+
 const Stack = createNativeStackNavigator();
 
 const StackNavigation = () => {
@@ -35,6 +40,10 @@ const StackNavigation = () => {
         <Stack.Screen options={{ headerShown: false }} name="ApprovalPending" component={ApprovalPending} />
         <Stack.Screen options={{ headerShown: false }} name="ApprovedList" component={ApprovedList} />
         <Stack.Screen options={{ headerShown: false }} name="LostList" component={LostList} />
+        <Stack.Screen options={{ headerShown: false }} name="SonumberList" component={SonumberList} />
+        <Stack.Screen options={{ headerShown: false }} name="SonumberSaleOrder" component={SonumberSaleOrder} />
+        <Stack.Screen options={{ headerShown: false }} name="BillSummary" component={BillSummary} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

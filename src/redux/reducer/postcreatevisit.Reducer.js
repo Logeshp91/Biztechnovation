@@ -31,9 +31,23 @@ const postcreatevisitReducer = (state = initial, action) => {
         error: { ...state.error, [action.requestKey]: action.payload },
       };
 
+    case actionTypes.CLEAR_SOPRODUCTS:
+      return {
+        ...state,
+        data: { ...state.data, soProducts: [] },
+        loading: { ...state.loading, soProducts: false },
+      };
+    case actionTypes.CLEAR_SONUMBERDETAIL:
+      return {
+        ...state,
+        data: { ...state.data, sonumberDetail: [] },
+        loading: { ...state.loading, sonumberDetail: false }, // Clear loading
+        error: { ...state.error, sonumberDetail: null },      // Clear error
+      };
     default:
       return state;
   }
 };
+
 
 export default postcreatevisitReducer;

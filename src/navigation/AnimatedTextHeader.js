@@ -1,46 +1,63 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Text, View, StyleSheet } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated, View, StyleSheet, Easing } from 'react-native';
 
 const AnimatedTextHeader = () => {
   const text = 'Welcome Biztechnovations';
   const chars = text.split('');
 
-  const baseColors = ['#019409', '#7630be', '#e1e812ff', '#0055FF']; 
-  const highlightColor = 'red';
+  const baseColor = '#7630be';    // Purple
+  const highlightColor = '#C0C0C0'; // Silver
 
   const animatedValues = useRef(chars.map(() => new Animated.Value(0))).current;
-  const [colorIndex, setColorIndex] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
 
-    const delay = ms => new Promise(res => setTimeout(res, ms));
+    const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
     const runAnimation = async () => {
       while (isMounted) {
-        // Show base color fully for 2 seconds
-        await delay(1000);
-
-        // Animate wave highlight one by one slowly
-        for (let i = 0; i < chars.length; i++) {
+        for (let i = 0; i < chars.length; i += 3) {
           if (!isMounted) break;
-          await new Promise((res) => {
-            Animated.timing(animatedValues[i], {
+
+          // Fade out previous 3 letters
+          const prevStart = i - 3;
+          if (prevStart >= 0) {
+            for (let k = prevStart; k < prevStart + 3 && k < chars.length; k++) {
+              Animated.timing(animatedValues[k], {
+                toValue: 0,
+                duration: 400,
+                easing: Easing.inOut(Easing.ease),
+                useNativeDriver: false,
+              }).start();
+            }
+          }
+
+          // Fade in next 3 letters
+          for (let j = i; j < i + 3 && j < chars.length; j++) {
+            Animated.timing(animatedValues[j], {
               toValue: 1,
-              duration: 100,
+              duration: 400,
+              easing: Easing.inOut(Easing.ease),
               useNativeDriver: false,
-            }).start(() => res());
-          });
+            }).start();
+          }
+
+          await delay(500);
         }
 
-        // Hold wave highlight for 1 second
-        await delay(1000);
+        // 🔥 Fade out the last group ("ons") before restarting
+        const lastStart = chars.length - (chars.length % 3 || 3);
+        for (let k = lastStart; k < chars.length; k++) {
+          Animated.timing(animatedValues[k], {
+            toValue: 0,
+            duration: 400,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: false,
+          }).start();
+        }
 
-        // Reset all animated values instantly
-        animatedValues.forEach(anim => anim.setValue(0));
-
-        // Switch to next base color
-        setColorIndex(prev => (prev + 1) % baseColors.length);
+        await delay(500); // pause before looping again
       }
     };
 
@@ -48,16 +65,16 @@ const AnimatedTextHeader = () => {
 
     return () => {
       isMounted = false;
-      animatedValues.forEach(anim => anim.stopAnimation());
+      animatedValues.forEach((anim) => anim.stopAnimation());
     };
-  }, [animatedValues, chars.length, baseColors.length]);
+  }, [animatedValues, chars.length]);
 
   return (
     <View style={styles.container}>
       {chars.map((char, i) => {
         const color = animatedValues[i].interpolate({
           inputRange: [0, 1],
-          outputRange: [baseColors[colorIndex], highlightColor],
+          outputRange: [baseColor, highlightColor],
         });
 
         return (

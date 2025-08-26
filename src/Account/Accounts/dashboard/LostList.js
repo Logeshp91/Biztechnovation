@@ -7,9 +7,9 @@ import { useNavigation } from '@react-navigation/native';
 const LostList = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-const [userGroups, setUserGroups] = useState([]);
-const uid = useSelector(state => state.postauthendicationReducer.uid);
-console.log("UID from postauthendicationReducer:", uid);
+  const [userGroups, setUserGroups] = useState([]);
+  const uid = useSelector(state => state.postauthendicationReducer.uid);
+  console.log("UID from postauthendicationReducer:", uid);
   const postcreatevisitData = useSelector(
     (state) => state.postcreatevisitReducer.data["openEnquiryList"]
   );
@@ -52,38 +52,38 @@ console.log("UID from postauthendicationReducer:", uid);
   }, [dispatch]);
 
   useEffect(() => {
-      if (!uid) return;
+    if (!uid) return;
 
     const payload = {
-  "jsonrpc": "2.0",
-  "method": "call",
-  "params": {
-    "model": "res.users",
-    "method": "read",
-    "args": [
-      [uid],
-      ["id", "name", "groups_id"]
-    ],
-    "kwargs": {}
-  }
-}
-  dispatch(postcreatevisit(payload, "groupList"));
-  console.log("Fetching group list for UID:", uid);
-}, [dispatch, uid]);
+      "jsonrpc": "2.0",
+      "method": "call",
+      "params": {
+        "model": "res.users",
+        "method": "read",
+        "args": [
+          [uid],
+          ["id", "name", "groups_id"]
+        ],
+        "kwargs": {}
+      }
+    }
+    dispatch(postcreatevisit(payload, "groupList"));
+    console.log("Fetching group list for UID:", uid);
+  }, [dispatch, uid]);
 
   const groupListData = useSelector((state) => state.postcreatevisitReducer.data["groupList"]);
-useEffect(() => {
-  if (Array.isArray(groupListData) && groupListData.length > 0) {
-    setUserGroups(groupListData[0].groups_id || []);
-  }
-}, [groupListData])
+  useEffect(() => {
+    if (Array.isArray(groupListData) && groupListData.length > 0) {
+      setUserGroups(groupListData[0].groups_id || []);
+    }
+  }, [groupListData])
 
-useEffect(() => {
+  useEffect(() => {
     if (postcreatevisitData) {
       const normalizedData = postcreatevisitData.map((item) => ({
         id: item.id,
         reference: item.name || "N/A",
-                  create_date: formatDateTime(item.create_date),
+        create_date: formatDateTime(item.create_date),
 
         purpose_of_visit: item.visit_purpose || "N/A",
         customer_name:
@@ -111,46 +111,46 @@ useEffect(() => {
         state: Array.isArray(item.state) && item.state.length > 1 ? item.state[1] : item.state || "N/A",
         followup_date: item.followup_date ? new Date(item.followup_date).toLocaleDateString() : "Not Scheduled",
       }));
-    const visitedEnquiries = normalizedData.filter(
-      (item) => item.state === "lost"
-    );
+      const visitedEnquiries = normalizedData.filter(
+        (item) => item.state === "lost"
+      );
 
-    console.log("Visited Enquiries:", visitedEnquiries);
-    setEnquiries(visitedEnquiries);
-  }
-}, [postcreatevisitData]);
+      console.log("Visited Enquiries:", visitedEnquiries);
+      setEnquiries(visitedEnquiries);
+    }
+  }, [postcreatevisitData]);
 
   const formatDateTime = (dateStr) => {
-  if (!dateStr) return "N/A";
+    if (!dateStr) return "N/A";
 
-  // Convert "YYYY-MM-DD HH:mm:ss" → "YYYY-MM-DDTHH:mm:ss" (ISO format)
-  const isoStr = dateStr.replace(" ", "T");
-  const dateObj = new Date(isoStr);
+    // Convert "YYYY-MM-DD HH:mm:ss" → "YYYY-MM-DDTHH:mm:ss" (ISO format)
+    const isoStr = dateStr.replace(" ", "T");
+    const dateObj = new Date(isoStr);
 
-  if (isNaN(dateObj.getTime())) return "N/A"; // check if date is valid
+    if (isNaN(dateObj.getTime())) return "N/A"; // check if date is valid
 
-  const day = String(dateObj.getDate()).padStart(2, "0");
-  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-  const year = dateObj.getFullYear();
+    const day = String(dateObj.getDate()).padStart(2, "0");
+    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const year = dateObj.getFullYear();
 
-  let hours = dateObj.getHours();
-  const minutes = String(dateObj.getMinutes()).padStart(2, "0");
-  const ampm = hours >= 12 ? "PM" : "AM";
-  hours = hours % 12 || 12; // convert 0 to 12
-  const strHours = String(hours).padStart(2, "0");
+    let hours = dateObj.getHours();
+    const minutes = String(dateObj.getMinutes()).padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12; // convert 0 to 12
+    const strHours = String(hours).padStart(2, "0");
 
-  return `${day}/${month}/${year} ${strHours}:${minutes} ${ampm}`;
-};
+    return `${day}/${month}/${year} ${strHours}:${minutes} ${ampm}`;
+  };
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() =>  { enquiryData: item }}
+      onPress={() => { enquiryData: item }}
     >
       <Text style={styles.title}>{item.reference}</Text>
-              <Text>
-              <Text style={styles.label}>Created On:</Text> {item.create_date}
-            </Text>
+      <Text>
+        <Text style={styles.label}>Created On:</Text> {item.create_date}
+      </Text>
       <Text>
         <Text style={styles.label}>Purpose:</Text> {item.purpose_of_visit}
       </Text>
@@ -175,12 +175,12 @@ useEffect(() => {
       <Text>
         <Text style={styles.label}>SO Number:</Text> {item.so_number}
       </Text>
-          <Text>
+      <Text>
         <Text style={styles.label}>FollowupDate:</Text> {item.followup_date}
       </Text>
-            <Text>
-              <Text style={styles.label}>status:</Text> {item.state}
-            </Text>
+      <Text>
+        <Text style={styles.label}>status:</Text> {item.state}
+      </Text>
     </TouchableOpacity>
   );
 
@@ -241,16 +241,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   verifyBtn: {
-  position: "absolute",
-  bottom: 10,
-  right: 10,
-  backgroundColor: "#28a745",
-  paddingVertical: 6,
-  paddingHorizontal: 12,
-  borderRadius: 8
-},
-verifyText: {
-  color: "#fff",
-  fontWeight: "bold"
-}
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    backgroundColor: "#28a745",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8
+  },
+  verifyText: {
+    color: "#fff",
+    fontWeight: "bold"
+  }
 });

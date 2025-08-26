@@ -12,6 +12,6 @@ export default function* (){
     yield takeLatest(actionType.POST_CREATEVISIT_REQUEST,postcreatevisitSaga)
     yield takeLatest(actionType.ODOO_CALL_REQUEST, odooCallSaga);
     yield takeLatest(actionType.POST_ACCESSREAD_REQUEST, postAccessReadSaga);
-        yield takeLatest(actionType.POST_CONVERT_REQUEST, postConvertSaga);
+    yield takeLatest(actionType.POST_CONVERT_REQUEST, postConvertSaga);
 
 }

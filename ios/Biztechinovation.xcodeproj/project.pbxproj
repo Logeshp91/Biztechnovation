@@ -11,6 +11,10 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		80887EDA6E80465CB5417EFA /* GOTHIC.TTF in Resources */ = {isa = PBXBuildFile; fileRef = AFB2DF6BD998449CB68B315A /* GOTHIC.TTF */; };
+		17D0C26C2E4244D39A63017C /* GOTHICB.TTF in Resources */ = {isa = PBXBuildFile; fileRef = 05EB3A5795C141618B97FA2C /* GOTHICB.TTF */; };
+		817DCBFCA46846178D0BD985 /* GOTHICBI.TTF in Resources */ = {isa = PBXBuildFile; fileRef = E5AEC3AD5E1A4F67B994492A /* GOTHICBI.TTF */; };
+		C38EA211B63040C9904EEC71 /* GOTHICI.TTF in Resources */ = {isa = PBXBuildFile; fileRef = 7F945A0737E74FDB97C0C727 /* GOTHICI.TTF */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +39,10 @@
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Biztechinovation/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Biztechinovation/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		AFB2DF6BD998449CB68B315A /* GOTHIC.TTF */ = {isa = PBXFileReference; name = "GOTHIC.TTF"; path = "../src/assets/fonts/GOTHIC.TTF"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		05EB3A5795C141618B97FA2C /* GOTHICB.TTF */ = {isa = PBXFileReference; name = "GOTHICB.TTF"; path = "../src/assets/fonts/GOTHICB.TTF"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		E5AEC3AD5E1A4F67B994492A /* GOTHICBI.TTF */ = {isa = PBXFileReference; name = "GOTHICBI.TTF"; path = "../src/assets/fonts/GOTHICBI.TTF"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		7F945A0737E74FDB97C0C727 /* GOTHICI.TTF */ = {isa = PBXFileReference; name = "GOTHICI.TTF"; path = "../src/assets/fonts/GOTHICI.TTF"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +101,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				2FDB554C942E4DE6BEBA0D78 /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -115,6 +124,18 @@
 			);
 			path = Pods;
 			sourceTree = "<group>";
+		};
+		2FDB554C942E4DE6BEBA0D78 /* Resources */ = {
+			isa = "PBXGroup";
+			children = (
+				AFB2DF6BD998449CB68B315A /* GOTHIC.TTF */,
+				05EB3A5795C141618B97FA2C /* GOTHICB.TTF */,
+				E5AEC3AD5E1A4F67B994492A /* GOTHICBI.TTF */,
+				7F945A0737E74FDB97C0C727 /* GOTHICI.TTF */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+			path = "";
 		};
 /* End PBXGroup section */
 
@@ -185,6 +206,10 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				80887EDA6E80465CB5417EFA /* GOTHIC.TTF in Resources */,
+				17D0C26C2E4244D39A63017C /* GOTHICB.TTF in Resources */,
+				817DCBFCA46846178D0BD985 /* GOTHICBI.TTF in Resources */,
+				C38EA211B63040C9904EEC71 /* GOTHICI.TTF in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

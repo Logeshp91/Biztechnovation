@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, PermissionsAndroid, NativeModules, Alert, Linking } from 'react-native';
+import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, PermissionsAndroid, NativeModules, Alert, Linking,ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { postauthendication } from '../../redux/action';
 import Geolocation from 'react-native-geolocation-service';
@@ -184,10 +184,15 @@ dispatch(postauthendication(loginPayload));
   const isLoginEnabled = pin.every((digit) => digit !== '');
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView
-        style={{ flex: 1, backgroundColor: '#fff' }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+<KeyboardAvoidingView
+  style={{ flex: 1, backgroundColor: '#fff' }}
+  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+>
+  <ScrollView
+    contentContainerStyle={{ flexGrow: 1 }}
+    keyboardShouldPersistTaps="handled"
+  >
         <View style={styles.container}>
           <View style={styles.topRow}>
             <View>
@@ -275,7 +280,8 @@ dispatch(postauthendication(loginPayload));
             </Text>
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
+  </ScrollView>
+</KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
 };

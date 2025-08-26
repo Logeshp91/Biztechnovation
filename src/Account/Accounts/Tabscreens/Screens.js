@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   Dimensions,
   Animated,
-  ScrollView,ImageBackground,
+  ScrollView,ImageBackground,ToastAndroid ,
     LayoutAnimation,
-  UIManager,Platform
+  UIManager,Platform,BackHandler
 } from 'react-native';
 import PagerView from 'react-native-pager-view';
 import { LineChart } from 'react-native-chart-kit';
@@ -21,20 +21,23 @@ const screenWidth = Dimensions.get('window').width;
 const PagerContent = ({ todayFollowUps = [] }) => (
   <PagerView style={styles.pagerView} initialPage={0}>
     <View key="1" style={styles.pagerPage}>
- <View style={styles.targetRow}>
-  {/* Left Side - Target */}
-  <Text style={styles.targetText}>Tons : 100 -70 =30  </Text>
-
-  {/* Right Side - Achieved + Balance */}
-  {/* <View style={styles.rightBox}>
-    <Text style={styles.achievedText}>70 Tons</Text>
-    <Text style={styles.balanceText}>30 Tons</Text>
-  </View> */}
+<View style={styles.targetContainer}>
+  <View style={styles.statBox}>
+ <Text style={styles.itemLabel}>🎯Target</Text>
+    <Text style={styles.statValue}>100</Text>
+  </View>
+  <View style={styles.statBox}>
+    <Text style={styles.itemLabel}>✅Achieved</Text>
+    <Text style={styles.statValue}>70</Text>
+  </View>
+  <View style={styles.statBox}>
+    <Text style={styles.statLabel}>📉Balance</Text>
+    <Text style={styles.statValue}>30</Text>
+  </View>
 </View>
     </View>
 
-    <View key="2" style={styles.pagerPage}>
-      <Text style={styles.sectionTitle}>Upcoming Follow-ups</Text>
+    <View key="2" style={styles.targetContainer}>
       {todayFollowUps.length > 0 ? (
         todayFollowUps.map((item) => (
           <View key={item.id} style={styles.followupCard}>
@@ -49,14 +52,15 @@ const PagerContent = ({ todayFollowUps = [] }) => (
           </View>
         ))
       ) : (
-        <Text style={{ marginTop: 5, color: '#555' }}>No follow-ups today</Text>
+        <Text style={{ marginTop: 5, color: '#555',fontWeight:'bold',fontSize:12  }}>📅No follow-ups today</Text>
       )}
     </View>
-        <View key="3" style={styles.pagerPage}>
-      <Text style={styles.sectionTitle}>Outstanding</Text>
-
-        <Text style={{ marginTop: 5, color: '#555' }}>200 Tons</Text>
-    </View>
+<View key="3" style={styles.targetContainer}>
+  <View style={styles.statBox1}>
+    <Text style={styles.statLabel}>💰Outstanding</Text>
+    <Text style={styles.statValue}>200 Tons</Text>
+  </View>
+</View>
   </PagerView>
 );
 
@@ -72,7 +76,6 @@ const Screens = () => {
   const [approvalPendingCount, setApprovalPendingCount] = useState(0);
   const [ApprovedListCount, setApprovedListCount] = useState(0);
   const [lostlistCount, setLostlistCount] = useState(0);
-const [animatingTab, setAnimatingTab] = useState(null); // for smooth transition
   const postcreatevisitData = useSelector(
     (state) => state.postcreatevisitReducer.data["openEnquiryList"] || []
   );
@@ -85,40 +88,46 @@ const [animatingTab, setAnimatingTab] = useState(null); // for smooth transition
     outputRange: [0, -150], // hide chart upwards
     extrapolate: 'clamp',
   });
-
-  // tabs move up into chart space
-  const tabTranslateY = scrollY.interpolate({
-    inputRange: [0, 150],
-    outputRange: [0, -150], // tabs move up
-    extrapolate: 'clamp',
-  });
-
   // just map scrollY, no manual Animated.timing
   const onScroll = Animated.event(
     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
     { useNativeDriver: true }
   );
-const handleTabPress = (tab) => {
-  if (selectedTab === tab) {
-    // Closing current tab → fade out
-    setAnimatingTab(null);
-    setTimeout(() => setSelectedTab(null), 300); // wait for fade-out
-  } else {
-    // Switching to a new tab
-    if (selectedTab) {
-      // Fade out current first
-      setAnimatingTab(null);
-      setTimeout(() => {
-        setSelectedTab(tab);
-        setAnimatingTab(tab);
-      }, 300); // wait fade-out, then show new
-    } else {
-      // Nothing open, just show directly
-      setSelectedTab(tab);
-      setAnimatingTab(tab);
-    }
-  }
-};
+
+  const backPressRef = useRef(0);
+
+useFocusEffect(
+  React.useCallback(() => {
+    const backAction = () => {
+      // Check if we are on root screen
+      const state = navigation.getState();
+      const currentRoute = state.routes[state.index];
+      const isRootScreen = currentRoute.name === 'Screens'; // root check
+
+      if (!isRootScreen) {
+        navigation.goBack();
+        return true;
+      }
+
+      const timeNow = Date.now();
+      if (backPressRef.current && timeNow - backPressRef.current < 2000) {
+        BackHandler.exitApp(); // exit app on second press
+        return true;
+      }
+
+      backPressRef.current = timeNow;
+      ToastAndroid.show('Press back again to exit', ToastAndroid.SHORT);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, [navigation])
+);
   // 🔹 Fetch data
   useFocusEffect(
     React.useCallback(() => {
@@ -143,7 +152,8 @@ const handleTabPress = (tab) => {
               "remarks",
               "so_id",
               "outcome_visit",
-              "create_date"
+              "create_date",
+              "billing_branch_id"
             ],
           },
         },
@@ -365,13 +375,20 @@ const AnimatedStatsSection = ({ visible, children }) => {
 </AnimatedStatsSection>
 
 )}
-
-
-
         {selectedTab === 'overview' && (
-          <View style={styles.emptyBoxContainer}>
-            <Text style={styles.emptyText}>Another view will show on</Text>
-          </View>
+<AnimatedStatsSection visible={selectedTab === 'overview'}>
+ {selectedTab === 'overview' && (
+  <ScrollView
+    horizontal
+    showsHorizontalScrollIndicator={false}
+    style={styles.Visitcroll}
+    contentContainerStyle={styles.VisitcrollContent}
+    key="visit-stats" // helps re-trigger child animations when reopening
+  >
+    <AnimatedStatBox label="Reference" count={completedCount} color="#3966c2ff" onPress={() => navigation.navigate('SonumberList')} delay={900} />
+  </ScrollView>
+)}
+</AnimatedStatsSection>
         )}
 
       <View style={styles.listSection}>
@@ -421,13 +438,13 @@ const StatBox = ({ label, count, color, onPress }) => (
 export default Screens;
 
 const chartConfig = {
-  backgroundGradientFrom: '#ab9fe7ff',
-  backgroundGradientTo: '#ab9fe7ff',
-  color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+  backgroundGradientFrom: '#fff',
+  backgroundGradientTo: '#fff',
+  color: (opacity = 1) => `rgba(94, 135, 237, ${opacity})`,
+  labelColor: (opacity = 1) => `rgba(120, 120, 120, ${opacity})`,
   strokeWidth: 2,
   barPercentage: 0.5,
-  propsForDots: { r: '5', strokeWidth: '2', stroke: '#3720b9ff' },
+  propsForDots: { r: '5', strokeWidth: '2', stroke: '#5e87edff' },
 };
 
 const styles = StyleSheet.create({
@@ -439,6 +456,49 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(255,255,255,0.8)', // 👈 optional overlay for readability
   },
+  targetContainer: {
+  flexDirection: 'row',
+  justifyContent: 'space-around',
+  backgroundColor: '#fff',
+
+  borderRadius: 10,
+  elevation: 4,
+  marginVertical: 10,
+},
+statBox: {
+  alignItems: 'center',
+  flex: 1,
+},
+statBox1: {
+  alignItems: 'center',
+  flexDirection: 'row',
+  justifyContent: 'space-evenly',
+  flex: 1,
+},
+statLabel: {
+  fontSize: 12,
+  color: '#666',
+  fontWeight: '500',
+},
+statLabelout: {
+  fontSize: 12,
+  color: '#666',
+  fontWeight: '500',
+},
+statValue: {
+  fontSize: 12,
+  fontWeight: 'bold',
+  color: '#333',
+},
+targetContainerCenter: {
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: '#fff',
+  borderRadius: 10,
+  elevation: 4,
+  flexDirection:'row',
+  justifyContent:'space-evenly'
+},
 
   center: {
     flex: 1,
@@ -454,6 +514,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 10,
+    borderBottomColor: '#d7def0ff',
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
   },
   sectionTitle: {
     fontSize: 16,
@@ -462,7 +524,6 @@ const styles = StyleSheet.create({
   },
  targetRow: {
   flexDirection: 'row',
-  // justifyContent: 'space-between', // 👈 pushes left & right apart
   alignItems: 'center',
 
 },
@@ -491,7 +552,6 @@ rightBox: {
 },
 chartRow: {
   flexDirection: 'row',
-
 },
 chartBox: {
   backgroundColor: '#fff',
@@ -521,7 +581,7 @@ chartBox: {
   },
   boxNumber: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: 10,
     fontWeight: 'bold',
   },
   followupCard: {
@@ -533,11 +593,11 @@ chartBox: {
     justifyContent: 'space-evenly',
   },
   followupName: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '500',
   },
   followupDate: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
   },
   tabButtonsContainer: {

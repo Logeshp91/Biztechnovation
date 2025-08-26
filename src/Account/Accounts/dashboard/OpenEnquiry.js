@@ -120,29 +120,29 @@ const formatDateTime = (dateStr) => {
       const normalizedData = postcreatevisitData.map((item) => ({
         id: item.id,
         reference: item.name || "N/A",
-        purpose_of_visit: item.visit_purpose || "N/A",
+        purpose_of_visit: item.visit_purpose || " ",
         customer_name:
           Array.isArray(item.partner_id) && item.partner_id[1]
             ? item.partner_id[1]
-            : "N/A",
+            : " ",
         brand:
           Array.isArray(item.brand) && item.brand[1]
             ? item.brand[1]
-            : "N/A",
+            : " ",
         outcome_visit:
           Array.isArray(item.outcome_visit) && item.outcome_visit[1]
             ? item.outcome_visit[1]
-            : item.outcome_visit || "N/A",
+            : item.outcome_visit || " ",
         product_category:
           Array.isArray(item.product_category) && item.product_category[1]
             ? item.product_category[1]
-            : item.product_category || "N/A",
-        qty: item.required_qty ?? "N/A",
-        remarks: item.remarks || "N/A",
+            : item.product_category || " ",
+        qty: item.required_qty ?? " ",
+        remarks: item.remarks || " ",
         so_number:
           Array.isArray(item.so_id) && item.so_id[1]
             ? item.so_id[1]
-            : "N/A",
+            : " ",
         state: item.state || "N/A",
         followup_date: item.followup_date
           ? new Date(item.followup_date).toLocaleDateString()
@@ -230,18 +230,31 @@ create_date: formatDateTime(item.create_date)
         navigation.navigate("Stage1", { enquiryData: item });
       }}
     >
+    <View style={styles.row}>
       <Text style={styles.title}>{item.reference}</Text>
-      <Text><Text style={styles.label}>create Date:</Text> {item.create_date}</Text>
-      <Text><Text style={styles.label}>Purpose:</Text> {item.purpose_of_visit}</Text>
-      <Text><Text style={styles.label}>Customer:</Text> {item.customer_name}</Text>
-      <Text><Text style={styles.label}>Product Category:</Text> {item.product_category}</Text>
-      <Text><Text style={styles.label}>Brand:</Text> {item.brand}</Text>
-      <Text><Text style={styles.label}>Quantity:</Text> {item.qty}</Text>
-      <Text><Text style={styles.label}>Remarks:</Text> {item.remarks}</Text>
-      <Text><Text style={styles.label}>Visit Outcomes:</Text> {item.outcome_visit}</Text>
-      <Text><Text style={styles.label}>SO Number:</Text> {item.so_number}</Text>
-      <Text><Text style={styles.label}>Status:</Text> {item.state}</Text>
-      <Text><Text style={styles.label}>Follow-Up Date:</Text> {item.followup_date}</Text>
+      <Text style={styles.title}>{item.so_number}</Text>
+    </View>
+
+    {/* Customer Name Center */}
+    <Text style={styles.centerText}>{item.customer_name}</Text>
+    <Text style={styles.centerText}>{item.followup_date}</Text>
+    {/* Product Category Left | Brand Right */}
+    <View style={styles.row}>
+      <Text><Text style={styles.label}>Product :</Text>{item.product_category}</Text>
+      <Text><Text style={styles.label}>Brand: </Text>{item.brand}</Text>
+    </View>
+
+    {/* Visit Outcome Left | Status Right */}
+    <View style={styles.row}>
+      <Text><Text style={styles.label}>Visit :</Text>{item.outcome_visit}</Text>
+      <Text><Text style={styles.label}>Status: </Text>{item.state}</Text>
+    </View>
+
+     <View style={styles.row}>
+    <Text><Text style={styles.label}>Remarks: </Text>{item.remarks}</Text>
+
+    {/* SO Number Full Width */}
+        </View>
 {/* 
       {userGroups.includes(65) &&
         (!item.so_number || item.so_number === "N/A" ) && (
@@ -283,9 +296,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 15,
-    backgroundColor: "#f2f2f2"
+    backgroundColor: "#f2f2f2",
+        marginTop: 20,
   },
-    searchInput: { backgroundColor: "#fff", padding: 10, borderRadius: 8, marginBottom: 15 },
+    searchInput: { backgroundColor: "#fff", padding: 10, borderRadius: 8, marginBottom: 15,borderColor:'purple', borderWidth: 1 },
   card: {
     backgroundColor: "#fff",
     borderRadius: 12,
@@ -301,7 +315,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 8,
-    color: "#3966c2"
+    color: "#084c88ff"
   },
   label: {
     fontWeight: "bold",
@@ -334,5 +348,20 @@ const styles = StyleSheet.create({
   verifyText: {
     color: "#fff",
     fontWeight: "bold"
-  }
+  },row: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  marginBottom: 5,
+  alignItems: 'center'
+},
+textRight: {
+  textAlign: 'right',
+  color: '#333'
+},
+centerText: {
+  textAlign: 'center',
+  fontWeight: 'bold',
+  marginBottom: 5,
+  color: '#47c239ff'
+}
 });

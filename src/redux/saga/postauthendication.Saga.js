@@ -3,9 +3,11 @@ import { endPoint, ApiMethod } from "../../services/Apicall";
 import actionTypes from "../actionTypes";
 
 function* postauthendicationSaga(action) {
+  console.log("action",action);
+  
   try {
-    
     const response = yield call(ApiMethod.POST, endPoint.postauthendication, action.payload);
+        console.log("respons1",response);
     const data = response?.data ?? response;
 
     if (data?.result) {
