@@ -9,16 +9,12 @@ const SonumberList = () => {
   const navigation = useNavigation();
   const [searchText, setSearchText] = useState("");
 
-  const postcreatevisitData = useSelector(
-    (state) => state.postcreatevisitReducer.data["completedOrdersList"]
-  );
-  const postcreatevisitLoading = useSelector(
-    (state) => state.postcreatevisitReducer.loading["completedOrdersList"]
-  );
+  const saleorderList = useSelector(state => state.postcreatevisitReducer.data["saleorderlist"]);
+  const loading = useSelector(state => state.postcreatevisitReducer.loading["saleorderlist"]);
 
   const [enquiries, setEnquiries] = useState([]);
 
-  // Fetch customer visits
+  // Fetch SO list
   useEffect(() => {
     const payload = {
       jsonrpc: "2.0",
@@ -36,31 +32,31 @@ const SonumberList = () => {
         },
       },
     };
-    dispatch(postcreatevisit(payload, "completedOrdersList"));
+    dispatch(postcreatevisit(payload, "saleorderlist"));
   }, [dispatch]);
 
-  // Normalize data
-  useEffect(() => {
-    if (Array.isArray(postcreatevisitData)) {
-      const normalizedData = postcreatevisitData
-        .filter(item => Array.isArray(item.so_id) && item.so_id.length > 1)
-        .map(item => ({
-          id: item.id,
-          reference: item.name || "N/A",
-          create_date: formatDateTime(item.create_date),
-          purpose_of_visit: item.visit_purpose || "N/A",
-          customer_name: Array.isArray(item.partner_id) ? item.partner_id[1] : "N/A",
-          brand: Array.isArray(item.brand) ? item.brand[1] : "N/A",
-          product_category: Array.isArray(item.product_category) ? item.product_category[1] : "N/A",
-          qty: item.required_qty ?? "N/A",
-          remarks: item.remarks || "N/A",
-          outcome_visit: Array.isArray(item.outcome_visit) ? item.outcome_visit[1] : "N/A",
-          so_id: Array.isArray(item.so_id) ? item.so_id[0] : null,
-          so_number: Array.isArray(item.so_id) ? item.so_id[1] : "N/A",
-        }));
-      setEnquiries(normalizedData);
-    }
-  }, [postcreatevisitData]);
+useEffect(() => {
+  if (Array.isArray(saleorderList)) {
+    const normalizedData = saleorderList
+      .filter(item => Array.isArray(item.so_id) && item.so_id.length > 1)
+      .map(item => ({
+        id: item.id,
+        reference: item.name || "N/A",
+        create_date: formatDateTime(item.create_date),
+        purpose_of_visit: item.visit_purpose || "N/A",
+        customer_name: Array.isArray(item.partner_id) ? item.partner_id[1] : "N/A",
+        brand: Array.isArray(item.brand) ? item.brand[1] : "N/A",
+        product_category: Array.isArray(item.product_category) ? item.product_category[1] : "N/A",
+        qty: item.required_qty ?? "N/A",
+        remarks: item.remarks || "N/A",
+        outcome_visit: Array.isArray(item.outcome_visit) ? item.outcome_visit[1] : "N/A",
+        so_id: Array.isArray(item.so_id) ? item.so_id[0] : null,  // correct ID
+        so_number: Array.isArray(item.so_id) ? item.so_id[1] : "N/A"
+      }));
+    setEnquiries(normalizedData);
+  }
+}, [saleorderList]);
+
 
   const formatDateTime = (dateStr) => {
     if (!dateStr) return "N/A";
@@ -103,14 +99,19 @@ const SonumberList = () => {
       <Text><Text style={styles.label}>Visit Outcomes:</Text> {item.outcome_visit}</Text>
       <Text>
         <Text style={styles.label}>SO Number:</Text>{" "}
-        <TouchableOpacity onPress={() => navigation.navigate('SonumberSaleOrder', { soId: item.so_id })}>
-          <Text style={{ color: '#3966c2' }}>{item.so_number}</Text>
-        </TouchableOpacity>
+    <TouchableOpacity
+  onPress={() => navigation.navigate('SonumberSaleOrder', {
+    soId: item.so_id,    // correct ID
+    soNumber: item.so_number
+  })}
+>
+  <Text style={{ color: '#3966c2' }}>{item.so_number}</Text>
+</TouchableOpacity>
       </Text>
     </View>
   );
 
-  if (postcreatevisitLoading) {
+  if (loading) {
     return (
       <View style={styles.loader}>
         <ActivityIndicator size="large" color="#3966c2" />

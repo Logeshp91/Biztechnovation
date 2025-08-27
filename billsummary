@@ -1,0 +1,289 @@
+import React, { useState } from "react";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, LayoutAnimation, Platform, UIManager, Alert, PermissionsAndroid } from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome";
+
+
+const BillSummary = ({ route }) => {
+  const { products = [], form = {}, taxDetails = [] } = route.params;
+  const [billingShippingVisible, setBillingShippingVisible] = useState(false);
+  const [expandedProducts, setExpandedProducts] = useState({});
+  if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+  const toggleAddress = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setBillingShippingVisible(!billingShippingVisible);
+  };
+  
+  const toggleProductName = (index) => {
+    setExpandedProducts((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
+  };
+
+  const colWidths = [150, 80, 40, 60, 60, 100];
+  const totalDelivered = products.reduce((sum, item) => sum + (item.qty_delivered || 0), 0);
+  const totalOrdered = products.reduce((sum, item) => sum + (item.product_uom_qty || 0), 0);
+  const totalAmountUntaxed = form.amount_untaxed ?? 0;
+  const totalGST = form.amount_tax ?? 0;
+  const totalAmount = form.amount_total ?? 0;
+  const taxMapDetail = Object.fromEntries(
+    taxDetails.map(tax => [tax.id, { name: tax.name, amount: tax.amount }])
+  );
+  const calculateGSTAmount = (product) => {
+    if (!product.tax_id || !Array.isArray(product.tax_id) || product.tax_id.length === 0) return 0;
+    const amount = (product.price_unit || 0) * (product.product_uom_qty || 0);
+    return product.tax_id.reduce((sum, taxId) => sum + (amount * (taxMapDetail[taxId]?.amount || 0) / 100), 0);
+  };
+  const companyName = Array.isArray(form.company_id) ? form.company_id[1] : "";
+  const companyInitial = companyName ? companyName.charAt(0) : "?";
+  return (
+    <ScrollView style={styles.container}>
+      {/* SO Header */}
+      <Text style={styles.soNumber}>{form.name}</Text>
+      <View style={styles.headerRow}>
+        <View style={styles.companyBox}>
+          <Text style={styles.companyInitial}>{companyInitial}</Text>
+        </View>
+        <Text style={styles.companyName}>{companyName}</Text>
+      </View>
+      <Text style={styles.mobileNumber}>Mobile: {form.mobile || "-"}</Text>
+      {/* Toggle Address Button */}
+      <TouchableOpacity style={styles.billingShippingBox} onPress={toggleAddress}>
+        <Text style={styles.billingShippingText}>
+          {billingShippingVisible ? "Hide Address" : "View Address"}
+        </Text>
+      </TouchableOpacity>
+      {/* Billing/Shipping Address */}
+      {billingShippingVisible && (
+        <View style={styles.addressRow}>
+          <View style={styles.addressBox}>
+            <Text style={styles.addressLabel}>Billing Address</Text>
+            <Text style={styles.addressValue}>
+              {Array.isArray(form.partner_invoice_id) ? form.partner_invoice_id[1] : "-"}
+            </Text>
+          </View>
+          <View style={styles.addressBox}>
+            <Text style={styles.addressLabel}>Shipping Address</Text>
+            <Text style={styles.addressValue}>
+              {Array.isArray(form.partner_shipping_id) ? form.partner_shipping_id[1] : "-"}
+            </Text>
+          </View>
+        </View>
+      )}
+      {/* Detailed Products - Always Expanded */}
+    <View style={styles.productsCard}>
+      <View style={{flexDirection:"row"}}>
+      <Icon name="product-hunt" size={20} color="#3966c2" style={{ marginRight: 8 }} />
+  <Text style={styles.productsHeader}>Product Details</Text>
+</View>
+  {products.length > 0 ? (
+    products.map((item, index) => {
+      const gstAmount = calculateGSTAmount(item);
+      const taxNames = Array.isArray(item.tax_id)
+        ? item.tax_id.map(taxId => taxMapDetail[taxId]?.name || "").filter(Boolean).join(", ")
+        : "-";
+
+      const quantity = item.product_uom_qty ?? 0;
+      const unitPrice = item.price_unit ?? 0;
+      const amount = quantity * unitPrice;
+      const isExpanded = expandedProducts[index] || false;
+
+      return (
+        <View key={item.id || index} style={styles.productRow}>
+          {/* Left Section */}
+          <View style={styles.leftSection}>
+
+<TouchableOpacity onPress={() => toggleProductName(index)}>
+  <View style ={{flexDirection:"row",marginLeft:5}}>
+ <Icon name="dot-circle-o" size={10} color="#dd36a8ff" style={{ marginRight: 5,marginTop:1 }} />
+  <Text
+    style={styles.productName}
+    numberOfLines={isExpanded ? 5 : 1}
+    ellipsizeMode="tail"
+  >
+    {isExpanded
+      ? item.name
+      : item.name?.length > 25
+        ? item.name.slice(0, 25) + "..."
+        : item.name}
+  </Text>
+  </View>
+            </TouchableOpacity>
+          
+            <Text style={styles.productDetail}>{quantity} × {unitPrice}</Text>
+            <Text style={styles.productDetail}>{amount} + {gstAmount.toFixed(2)}({taxNames})</Text>
+          </View>
+
+          {/* Right Section */}
+          <View style={styles.rightSection}>
+<Text style={styles.totalValue}>
+  {((item.price_subtotal || 0) + calculateGSTAmount(item)).toFixed(2)}
+</Text>
+          </View>
+        </View>
+      );
+    })
+  ) : (
+    <Text style={{ textAlign: "center", marginTop: 20 }}>No products found</Text>
+  )}
+</View>
+
+
+
+      <View style={styles.summaryCard}>
+  <View style={styles.summaryHeader}>
+    <Icon name="book" size={20} color="#3966c2" style={{ marginRight: 8 }} />
+    <Text style={styles.summaryHeaderText}>Bill Summary</Text>
+    <TouchableOpacity onPress={{}}>
+      <Icon name="download" size={20} color="#b70e19" />
+    </TouchableOpacity>
+  </View>
+  {[
+    { icon: "money", label: "Amount Untaxed:", value: totalAmountUntaxed },
+    { icon: "shopping-cart", label: "Quantity Ordered:", value: totalOrdered },
+    { icon: "truck", label: "Delivered:", value: totalDelivered },
+    { icon: "percent", label: "GST (Tax):", value: totalGST },
+  ].map((item, index) => (
+    <View key={index} style={styles.summaryRow}>
+      <View style={styles.iconContainer}>
+        <Icon name={item.icon} size={12} color="#3966c2" />
+      </View>
+      <Text style={styles.summaryLabel}>{item.label}</Text>
+      <Text style={styles.summaryValue}>{item.value}</Text>
+    </View>
+  ))}
+  <View style={[styles.summaryRow, styles.totalRow]}>
+    <Text style={[styles.summaryLabel, { fontWeight: "700" }]}>Total Amount</Text>
+    <Text style={[styles.summaryValue, { color: "#d60e0e", fontWeight: "700" }]}>{totalAmount}</Text>
+  </View>
+</View>
+    </ScrollView>
+  );
+};
+
+export default BillSummary;
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 15, backgroundColor: "#f2f2f2" },
+  soNumber: { textAlign: "center", fontSize: 20, fontWeight: "bold", marginTop: 20 },
+  headerRow: { flexDirection: "row", alignItems: "center" },
+  companyBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 5,
+    backgroundColor: "#3966c2",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 10,
+  },
+  companyInitial: { color: "#fff", fontWeight: "bold", fontSize: 18 },
+  companyName: { fontSize: 14, fontWeight: "bold", flex: 1 },
+  mobileNumber: { fontSize: 14, color: "#333", marginLeft: 50},
+  billingShippingBox: { marginLeft: 50, },
+  billingShippingText: { fontSize: 12, fontWeight: "600", color: "#d60e0eff" },
+  addressRow: { flexDirection: "row", justifyContent: "space-between",marginTop:10 },
+  addressBox: { flex: 1, },
+  addressLabel: { fontSize: 12, fontWeight: "bold", color: "#333" },
+  addressValue: { fontSize: 14, color: "#000" },
+  summaryCard: {
+    backgroundColor: "#f2f2f2",
+    borderRadius: 12,
+    padding: 15,
+    marginVertical: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  summaryHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 15 },
+  summaryHeaderText: { fontSize: 14, fontWeight: "600", color: "#333", flex: 1 },
+summaryRow: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  marginBottom: 8,
+},
+iconContainer: {
+  width: 24, // fixed width for icons
+  alignItems: "center",
+},
+summaryLabel: {
+  flex: 1,
+  fontSize: 12,
+  color: "#555",
+  marginLeft: 6, // space after icon
+},
+summaryValue: {
+  fontSize: 12,
+  fontWeight: "500",
+  color: "#000",
+  fontFamily:"GOTHIC"
+},
+totalRow: {
+  borderTopWidth: 1,
+  borderTopColor: "#ccc",
+  paddingTop: 10,
+  marginTop: 10,
+},
+productsHeader: {
+  fontSize: 14,
+  fontWeight: "600",
+  marginBottom: 10,
+  color: "#333",
+},
+
+productsCard: {
+  backgroundColor: "#f2f2f2",
+  borderRadius: 12,
+  padding: 15,
+  marginTop: 15,
+  shadowColor: "#000",
+  shadowOpacity: 0.1,
+  shadowOffset: { width: 0, height: 2 },
+  shadowRadius: 4,
+  elevation: 2,
+},
+
+productRow: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+},
+
+leftSection: {
+  flex: 2,
+  justifyContent: "center",
+},
+
+rightSection: {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "flex-end",
+},
+
+productName: {
+  fontSize: 10,
+  fontWeight: "600",
+},
+
+productDetail: {
+  fontSize: 9,
+  color: "#555",
+  marginLeft:"10%"
+},
+
+gstValue: {
+  fontSize: 11,
+  color: "#3966c2",
+
+},
+totalValue: {
+  fontSize: 11,
+  fontWeight: "700",
+  color: "#d60e0e",
+  marginRight:5
+},
+  detailedSummaryCard: { backgroundColor: "#f2f2f2", borderRadius: 12, padding: 15, marginBottom: "15%" },
+});

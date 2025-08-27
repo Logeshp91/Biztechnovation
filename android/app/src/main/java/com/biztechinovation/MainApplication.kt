@@ -11,6 +11,7 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.biztechinovation.SimInfoPackage;
 import com.reactnativepagerview.PagerViewPackage;
+import com.rnfs.RNFSPackage;
 
 class MainApplication : Application(), ReactApplication {
 
@@ -19,7 +20,8 @@ class MainApplication : Application(), ReactApplication {
         override fun getPackages(): List<ReactPackage> =
             PackageList(this).packages.apply {
               // Packages that cannot be autolinked yet can be added manually here, for example:
-              add(SimInfoPackage())             
+              add(SimInfoPackage())
+              RNFSPackage()           
             }
 
         override fun getJSMainModuleName(): String = "index"
