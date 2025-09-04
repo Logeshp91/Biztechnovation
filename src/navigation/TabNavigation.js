@@ -11,7 +11,10 @@ import CustomDrawerContent from './CustomDrawerContent';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AnimatedTextHeader from './AnimatedTextHeader';
 import { useNavigation } from '@react-navigation/native';
-
+import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+import Entypo from 'react-native-vector-icons/Entypo';
+import Foundation from 'react-native-vector-icons/Foundation';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
@@ -28,6 +31,13 @@ const TabNavigation = () => {
     return null;
   };
 
+  const tabIcons = {
+    Screens: { lib: Foundation, active: 'home', inactive: 'home', size: 26 },
+    Settings: { lib: FontAwesome6, active: 'user', inactive: 'user', size: 21 },
+    Modal: { lib: Entypo, active: 'plus', inactive: 'plus', size: 10 },
+    Contact: { lib: FontAwesome6, active: 'folder-minus', inactive: 'folder-minus', size: 23 },
+    About: { lib: MaterialIcons, active: 'bar-chart', inactive: 'bar-chart', size: 26 },
+  };
 
   useEffect(() => {
     if (isPanelVisible) {
@@ -104,42 +114,52 @@ const TabNavigation = () => {
         drawerContent={props => <CustomDrawerContent {...props} />}
         screenOptions={{
           drawerStyle: {
-            backgroundColor: "#faf7f7", width: "85%", height: "90.5%", marginTop: "6.5%", borderTopRightRadius: 15,
+            backgroundColor: "#FFFFFF", width: "85%", height: "90.5%", marginTop: "6.5%", borderTopRightRadius: 15,
             borderBottomRightRadius: 15, borderTopLeftRadius: 15, borderBottomLeftRadius: 15,
             overflow: 'hidden',
           },
           headerStyle: {
-            backgroundColor: '#ffffffff',
+            backgroundColor: '#353b87',
             elevation: 0,
             shadowOpacity: 0,
             borderBottomWidth: 0,
             shadowColor: 'transparent',
           },
-          headerTintColor: 'black',
+          headerTintColor: '#ffffff',
         }}
       >
         <Drawer.Screen
           name=" "
           options={({ navigation }) => ({
             headerShown: true,
+            headerLeft: () => (
+              <TouchableOpacity
+                style={{ marginLeft: 15 }}
+                onPress={() => navigation.toggleDrawer()}
+              >
+                <Icon name="menu" size={23} color="#FFFFFF" />
+              </TouchableOpacity>
+            ),
             headerRight: () => (
               <View style={styles.headerRightWrapper}>
-                <AnimatedTextHeader />
-                <TouchableOpacity
-                  style={styles.notificationButton}
-                  onPress={() => setIsPanelVisible(true)} // 👈 open smoothly
-                >
-                  <Icon name="notifications-outline" size={24} color="#333" />
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>3</Text>
-                  </View>
-                </TouchableOpacity>
 
+                <View style={styles.circleAvatar}>
+                  <Text style={styles.avatarLetter}>P</Text> {/* Replace 'P' dynamically if needed */}
+                </View>
+                {/* <TouchableOpacity
+          style={styles.notificationButton}
+          onPress={() => setIsPanelVisible(true)}
+        >
+          <Icon name="notifications-outline" size={24} color="#fff" />
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>3</Text>
+          </View>
+        </TouchableOpacity> */}
               </View>
-            )
-
+            ),
           })}
         >
+
           {() => (
             <View
               style={{ flex: 1, resizeMode: 'cover' }}
@@ -147,43 +167,37 @@ const TabNavigation = () => {
               <Tab.Navigator
                 screenOptions={({ route }) => ({
                   tabBarIcon: ({ focused, color, size }) => {
-                    let iconName;
-                    if (route.name === 'Screens') {
-                      iconName = focused ? 'th-large' : 'th';
-                    } else if (route.name === 'Settings') {
-                      iconName = focused ? 'cogs' : 'cog';
-                    } else if (route.name === 'Modal') {
-                      iconName = focused ? 'info-circle' : 'info';
-                    } else if (route.name === 'Contact') {
-                      iconName = focused ? 'address-book' : 'address-book-o';
-                    } else if (route.name === 'About') {
-                      iconName = focused ? 'info-circle' : 'info';
-                    }
-                    return <FontAwesome name={iconName} size={size} color={color} />;
+                    const IconLib = tabIcons[route.name].lib;      // Get the library
+                    const iconName = focused
+                      ? tabIcons[route.name].active               // Active icon
+                      : tabIcons[route.name].inactive;
+                    const iconSize = tabIcons[route.name].size;            // Inactive icon
+                    return <IconLib name={iconName} size={iconSize} color={color} />;
                   },
-                  tabBarActiveTintColor: '#019409',
-                  tabBarInactiveTintColor: 'gray',
+                  tabBarActiveTintColor: '#1468F5',
+                  tabBarInactiveTintColor: '#747171',
                   tabBarStyle: {
-                    backgroundColor: '#ffffff',
-                    height: 50,
+                    backgroundColor: '#FFFFFF', // or any color you want
+                    borderTopWidth: 0,           // remove the default top border
+                    elevation: 0,                // remove shadow on Android
+                    shadowOpacity: 0,            // remove shadow on iOS
                     width: "100%",
                     alignSelf: "center",
                     borderRadius: 10,
-                    marginBottom: '3%',
-                    marginTop: 2,
+                    marginTop: 0,                // remove tiny top gap
                   },
-                  tabBarLabelStyle: { fontSize: 12, fontStyle: 'italic', marginLeft: 10 },
+                  tabBarLabelStyle: { fontSize: 10, marginLeft: 1 },
                 })}
               >
                 <Tab.Screen
                   name="Screens"
                   component={Screens}
-                  options={{ headerShown: false, tabBarLabel: 'Dashboard' }}
+                  options={{ headerShown: false, tabBarLabel: 'Home' }}
                 />
                 <Tab.Screen
                   name="Settings"
                   component={Settings}
-                  options={{ headerShown: false }}
+                  options={{ headerShown: false, tabBarLabel: 'Customers' }}
                 />
 
                 <Tab.Screen
@@ -206,7 +220,7 @@ const TabNavigation = () => {
                           style={{
                             width: 50,
                             height: 50,
-                            backgroundColor: 'white',
+                            backgroundColor: 'transparent',
                             borderRadius: 50,
                           }}
                           resizeMode="contain"
@@ -218,12 +232,12 @@ const TabNavigation = () => {
                 <Tab.Screen
                   name="Contact"
                   component={Contact}
-                  options={{ headerShown: false }}
+                  options={{ headerShown: false, tabBarLabel: 'Orders' }}
                 />
                 <Tab.Screen
                   name="About"
                   component={About}
-                  options={{ headerShown: false }}
+                  options={{ headerShown: false, tabBarLabel: 'Reports' }}
                 />
               </Tab.Navigator>
             </View>
@@ -270,12 +284,26 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '80%',
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     borderRadius: 15,
     paddingVertical: 25,
     paddingHorizontal: 20,
     alignItems: 'center',
     elevation: 5,
+  },
+  circleAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 40 / 2,
+    backgroundColor: '#DDDFE6',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarLetter: {
+    color: '#250588',
+    fontWeight: 'bold',
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
   },
   overlay: {
     flex: 1,
@@ -283,9 +311,9 @@ const styles = StyleSheet.create({
   },
   notificationPanel: {
     position: "absolute",
-    top: 55,         
-    right: 10,       
-    width: 250,    
+    top: 55,
+    right: 10,
+    width: 250,
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 15,

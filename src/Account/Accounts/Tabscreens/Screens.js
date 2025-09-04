@@ -6,70 +6,24 @@ import {
   TouchableOpacity,
   Dimensions,
   Animated,
-  ScrollView,ImageBackground,ToastAndroid ,
-    LayoutAnimation,
-  UIManager,Platform,BackHandler
+  ScrollView, ImageBackground, ToastAndroid,
+  LayoutAnimation,
+  UIManager, Platform, BackHandler, Image
 } from 'react-native';
-import PagerView from 'react-native-pager-view';
-import { LineChart } from 'react-native-chart-kit';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { postcreatevisit } from '../../../redux/action';
 import { useDispatch, useSelector } from 'react-redux';
-
-const screenWidth = Dimensions.get('window').width;
-
-const PagerContent = ({ todayFollowUps = [] }) => (
-  <PagerView style={styles.pagerView} initialPage={0}>
-    <View key="1" style={styles.pagerPage}>
-<View style={styles.targetContainer}>
-  <View style={styles.statBox}>
- <Text style={styles.itemLabel}>🎯Target</Text>
-    <Text style={styles.statValue}>100</Text>
-  </View>
-  <View style={styles.statBox}>
-    <Text style={styles.itemLabel}>✅Achieved</Text>
-    <Text style={styles.statValue}>70</Text>
-  </View>
-  <View style={styles.statBox}>
-    <Text style={styles.statLabel}>📉Balance</Text>
-    <Text style={styles.statValue}>30</Text>
-  </View>
-</View>
-    </View>
-
-    <View key="2" style={styles.targetContainer}>
-      {todayFollowUps.length > 0 ? (
-        todayFollowUps.map((item) => (
-          <View key={item.id} style={styles.followupCard}>
-            <Text style={styles.followupName}>
-              {Array.isArray(item.partner_id) ? item.partner_id[1] : 'N/A'}
-            </Text>
-            <Text style={styles.followupDate}>
-              {item.followup_date
-                ? new Date(item.followup_date).toLocaleDateString()
-                : 'N/A'}
-            </Text>
-          </View>
-        ))
-      ) : (
-        <Text style={{ marginTop: 5, color: '#555',fontWeight:'bold',fontSize:12  }}>📅No follow-ups today</Text>
-      )}
-    </View>
-<View key="3" style={styles.targetContainer}>
-  <View style={styles.statBox1}>
-    <Text style={styles.statLabel}>💰Outstanding</Text>
-    <Text style={styles.statValue}>200 Tons</Text>
-  </View>
-</View>
-  </PagerView>
-);
+import CircularProgress from 'react-native-circular-progress-indicator';
+import { BarChart, LineChart } from 'react-native-chart-kit';
 
 const Screens = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const scrollY = useRef(new Animated.Value(0)).current;
-  const lastScrollY = useRef(0);
+
+  const screenWidth = Dimensions.get('window').width;
   const [selectedTab, setSelectedTab] = useState(null);
+
   const [todayFollowUps, setTodayFollowUps] = useState([]);
   const [totalListCount, setTotalListCount] = useState(0);
   const [completedCount, setCompletedCount] = useState(0);
@@ -82,52 +36,69 @@ const Screens = () => {
   const postcreatevisitLoading = useSelector(
     (state) => state.postcreatevisitReducer.loading["openEnquiryList"]
   );
-  // chart slides up when scrolling
-  const chartTranslateY = scrollY.interpolate({
-    inputRange: [0, 150],
-    outputRange: [0, -150], // hide chart upwards
-    extrapolate: 'clamp',
-  });
-  // just map scrollY, no manual Animated.timing
+
+  const now = new Date();
+  const hours = now.getHours();
+
+  // Dynamic greeting based on time
+  let greetingText = '';
+  if (hours < 12) {
+    greetingText = 'Good Morning';
+  } else if (hours < 17) {
+    greetingText = 'Good Afternoon';
+  } else {
+    greetingText = 'Good Evening';
+  }
+
+  // Format today's date (e.g., Tuesday, Sep 2)
+  const options = { weekday: 'long', month: 'short', day: 'numeric' };
+  const formattedDate = now.toLocaleDateString('en-US', options);
+
   const onScroll = Animated.event(
     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
     { useNativeDriver: true }
   );
 
+  const StatBox = ({ label, count, color, onPress, labelStyle, countStyle }) => (
+    <TouchableOpacity style={[styles.colorBox, { backgroundColor: color }]} onPress={onPress}>
+      <Text style={[styles.boxText, labelStyle]}>{label}</Text>
+      <Text style={[styles.boxNumber, countStyle]}>{count}</Text>
+    </TouchableOpacity>
+  );
   const backPressRef = useRef(0);
 
-useFocusEffect(
-  React.useCallback(() => {
-    const backAction = () => {
-      // Check if we are on root screen
-      const state = navigation.getState();
-      const currentRoute = state.routes[state.index];
-      const isRootScreen = currentRoute.name === 'Screens'; // root check
+  useFocusEffect(
+    React.useCallback(() => {
+      const backAction = () => {
+        // Check if we are on root screen
+        const state = navigation.getState();
+        const currentRoute = state.routes[state.index];
+        const isRootScreen = currentRoute.name === 'Screens'; // root check
 
-      if (!isRootScreen) {
-        navigation.goBack();
+        if (!isRootScreen) {
+          navigation.goBack();
+          return true;
+        }
+
+        const timeNow = Date.now();
+        if (backPressRef.current && timeNow - backPressRef.current < 2000) {
+          BackHandler.exitApp(); // exit app on second press
+          return true;
+        }
+
+        backPressRef.current = timeNow;
+        ToastAndroid.show('Press back again to exit', ToastAndroid.SHORT);
         return true;
-      }
+      };
 
-      const timeNow = Date.now();
-      if (backPressRef.current && timeNow - backPressRef.current < 2000) {
-        BackHandler.exitApp(); // exit app on second press
-        return true;
-      }
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backAction
+      );
 
-      backPressRef.current = timeNow;
-      ToastAndroid.show('Press back again to exit', ToastAndroid.SHORT);
-      return true;
-    };
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction
-    );
-
-    return () => backHandler.remove();
-  }, [navigation])
-);
+      return () => backHandler.remove();
+    }, [navigation])
+  );
   // 🔹 Fetch data
   useFocusEffect(
     React.useCallback(() => {
@@ -163,60 +134,44 @@ useFocusEffect(
     }, [dispatch])
   );
   useEffect(() => {
-  if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(true);
-  }
-}, []);
-const AnimatedStatBox = ({ label, count, color, onPress, delay }) => {
-  const translateY = useRef(new Animated.Value(50)).current;
-  const opacity = useRef(new Animated.Value(0)).current;
+    if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+  }, []);
+  const AnimatedStatBox = ({ label, count, color, onPress, delay, labelStyle, countStyle }) => {
+    const translateY = useRef(new Animated.Value(50)).current;
+    const opacity = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(translateY, {
-        toValue: 0,
-        duration: 500,
-        delay,
-        useNativeDriver: true,
-      }),
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration: 500,
-        delay,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [delay, translateY, opacity]);
+    useEffect(() => {
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: 0,
+          duration: 500,
+          delay,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 500,
+          delay,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, [delay, translateY, opacity]);
 
-  return (
-    <Animated.View
-      style={{
-        transform: [{ translateY }],
-        opacity,
-      }}
-    >
-      <StatBox label={label} count={count} color={color} onPress={onPress} />
-    </Animated.View>
-  );
-};
-const AnimatedStatsSection = ({ visible, children }) => {
-  const height = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.timing(height, {
-      toValue: visible ? 100 : 0, // adjust height to fit your StatBox row
-      duration: 600,
-      useNativeDriver: false, // height animation needs `false`
-    }).start();
-  }, [visible, height]);
-
-  return (
-    <Animated.View style={{ overflow: 'hidden', height }}>
-      {children}
-    </Animated.View>
-  );
-};
-
+    return (
+      <Animated.View style={{ transform: [{ translateY }], opacity }}>
+        <StatBox
+          label={label}
+          count={count}
+          color={color}
+          onPress={onPress}
+          labelStyle={labelStyle}
+          countStyle={countStyle}
+        />
+      </Animated.View>
+    );
+  };
   // 🔹 Process Data
   useEffect(() => {
     if (Array.isArray(postcreatevisitData)) {
@@ -262,168 +217,404 @@ const AnimatedStatsSection = ({ visible, children }) => {
   }
 
   return (
-      <ImageBackground 
-    source={require('../../../assets/backgroundimg.png')}   // 👈 put your image here
-    style={styles.background}
-    resizeMode="cover"
-  >
-    <View style={styles.container}>
-      {/* 🔹 PagerView stays fixed, never scrolls */}
-      <View style={styles.pagerWrapper}>
-        <PagerContent todayFollowUps={todayFollowUps} />
-      </View>
-
+    <ImageBackground
+      source={require('../../../assets/backgroundimg.png')}
+      style={styles.background}
+      resizeMode="cover"
+    >
       <Animated.ScrollView
         onScroll={onScroll}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 50 }}
       >
+        <View style={styles.container}>
+          <View>
+            <Text style={styles.greeting}>{greetingText}, Periyasamy</Text>
+            <Text style={styles.dateText}>{formattedDate}</Text>
+          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{}}
+          >
+            <View style={{ flexDirection: "row" }}>
+              <ImageBackground
+                source={require('../../../assets/Rectangle.png')}
+                style={styles.circleBackground1}
+              >
+                <View style={{ alignItems: 'flex-start', padding: 10 }}>
+                  <Text style={styles.targetTextTitle}>Sales Target</Text>
+                  <View style={{ flexDirection: "row" }}>
+                    <Text style={styles.targetTextValue}>100</Text>
+                    <Text style={styles.targetTextValue}>MT</Text>
+                  </View>
+                  <View style={{ flexDirection: "row" }}>
+                    <Text style={styles.targetText}>Achieved</Text>
+                    <Text style={styles.targetText1}> 82</Text>
+                    <Text style={styles.targetText2}> MT</Text>
+                  </View>
+                </View>
+
+                {/* Circle placed below the text, centered horizontally */}
+                <View style={{ alignItems: 'center', width: '100%', marginBottom: 5 }}>
+                  <CircularProgress
+                    value={60}
+                    maxValue={100}
+                    radius={35}
+                    activeStrokeWidth={12}
+                    inActiveStrokeWidth={12}
+                    activeStrokeColor="#57D6E2"
+                    inActiveStrokeColor="#9c9c9cff"
+                    inActiveStrokeOpacity={0.3}
+                    duration={1200}
+                    progressValueColor="#11033B"
+                    progressValueStyle={{
+                      fontFamily: 'Inter-Bold',
+                      fontSize: 20,
+                    }}
+                  />
+                </View>
+              </ImageBackground>
+              <ImageBackground
+                source={require('../../../assets/Rectangle2.png')}
+                style={styles.circleBackground2}
+                resizeMode="cover"
+              >
+                <View style={{ alignItems: 'flex-start', marginLeft: 5, marginTop: 7 }}>
+                  <Text style={styles.targetTextTitle}>Collection Target</Text>
+                  <View style={{ flexDirection: "row" }}>
+                    <Text style={styles.targetTextValue}>$</Text>
+                    <Text style={styles.targetTextValue}>50,00,000</Text>
+                  </View>
+                  <View style={{ flexDirection: "row", marginBottom: "10" }}>
+                    <Text style={styles.targetText}>Achieved </Text>
+                    <Text style={styles.targetText1}>$</Text>
+                    <Text style={styles.targetText2}>28,00,000</Text>
+                  </View>
+                </View>
+                <View style={{ alignItems: 'center', width: '100%', marginBottom: 5 }}>
+                  <CircularProgress
+                    value={60}
+                    maxValue={100}
+                    radius={35}
+                    activeStrokeWidth={12}
+                    inActiveStrokeWidth={12}
+                    activeStrokeColor="#57D6E2"
+                    inActiveStrokeColor="#9c9c9cff"
+                    inActiveStrokeOpacity={0.3}
+                    duration={1200}
+                    progressValueColor="#11033B"
+                    progressValueStyle={{
+                      fontFamily: 'Inter-Bold',
+                      fontSize: 20,
+                    }}
+                  />
+                </View>
+              </ImageBackground>
+
+              <ImageBackground
+                source={require('../../../assets/Rectangle3.png')}
+                style={styles.circleBackground3}
+                resizeMode="cover"
+              >
+                <View style={{ alignItems: 'flex-start', marginLeft: 10, marginTop: 2 }}>
+                  <Text style={styles.targetTextTitle}>Visit</Text>
+                  <View style={{ flexDirection: "row", marginTop: 4 }}>
+                    <Text style={styles.targetText}>Planned</Text>
+                    <Text style={styles.targetText1}>20</Text>
+                  </View>
+                  <View style={{ flexDirection: "row", marginTop: 4 }}>
+                    <Text style={styles.targetText}>completed </Text>
+                    <Text style={styles.targetText1}>20</Text>
+                  </View>
+                </View>
+                <View style={{
+
+                  width: '80%',
+                  marginTop: 20,
+                  marginLeft: 10
+                }}>
+                  <View style={{
+                    height: 8,
+                    width: '90%',
+                    backgroundColor: '#D9D9D9',
+                    borderRadius: 5,
+                    overflow: 'hidden',
+                  }}>
+                    <View style={{
+                      height: '100%',
+                      width: '40%',
+                      backgroundColor: '#57D6E2',
+                    }} />
+                  </View>
+
+                  <Text style={{
+                    color: '#FFFFFF',
+                    fontSize: 14,
+                    fontFamily: 'Inter-Regular',
+                  }}>
+                  </Text>
+                </View>
+
+                <View style={{ flexDirection: "row", marginLeft: 6 }}>
+                  <Text style={styles.targetTextValue}>$</Text>
+                  <Text style={styles.targetTextValue}>1,00,000</Text>
+                </View>
+              </ImageBackground>
+            </View>
 
 
-<Animated.View
-  style={[
-    styles.chartSection,
-    { transform: [{ translateY: chartTranslateY }] },
-  ]}
->
-  <ScrollView
-    horizontal
-    showsHorizontalScrollIndicator={false}
-    contentContainerStyle={styles.chartRow}
-  >
-    <View style={styles.chartBox}>
-      <LineChart
-        data={{
-          labels: ['W1', 'W2', 'W3', 'W4'],
-          datasets: [{ data: [30, 60, 50, 80], strokeWidth: 2 }],
-        }}
-        width={screenWidth } 
-        height={120}
-        yAxisSuffix="%"
-        chartConfig={chartConfig}
-        bezier
-      />
-    </View>
+            <View>
+              <View style={{ width: 120, height: 165, justifyContent: 'center', alignItems: 'center', backgroundColor: '#cecdcdff', marginLeft: 10, marginTop: 10 }}>
+                <Text style={{ color: '#fff', fontSize: 20 }}>hello</Text>
+              </View>
+            </View>
+          </ScrollView>
+          <Animated.ScrollView
+            onScroll={onScroll}
+            scrollEventThrottle={16}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 50 }}
+          >
 
-    <View style={styles.chartBox}>
-      <LineChart
-        data={{
-          labels: ['M1', 'M2', 'M3', 'M4'],
-          datasets: [{ data: [20, 40, 70, 90], strokeWidth: 2 }],
-        }}
-        width={screenWidth - 1}
-        height={120}
-        yAxisSuffix="%"
-        chartConfig={chartConfig}
-        bezier
-      />
-    </View>
-  </ScrollView>
-</Animated.View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.Visitcroll}
+              contentContainerStyle={{
+                flexDirection: 'row',
+              }}
+            >
 
-        <View style={{flexDirection:'row',justifyContent:'space-evenly',marginTop:10}}>
-      <TouchableOpacity
-  style={[
-    styles.tabButton,
-    selectedTab === 'Visit' && styles.tabButtonActive,
-  ]}
-  onPress={() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setSelectedTab(prev => (prev === 'Visit' ? null : 'Visit'));
-  }}
->
-  <Text style={selectedTab === 'Visit' ? styles.tabButtonTextActive : styles.tabButtonText}>
-    Visit
-  </Text>
-</TouchableOpacity>
+              <View >
+                <ImageBackground
+                  source={require('../../../assets/Rectanglelist.png')}
+                  style={{ width: 170, height: 60, justifyContent: 'center', alignItems: 'center' }}
+                  imageStyle={{}}
+                >
+                  <View style={{ flexDirection: "row" }}>
+                    icon={
+                      <Image
+                        source={require('../../../assets/allList.png')} // your image
+                        style={{ width: 40, height: 40 }}
+                        resizeMode="contain"
+                      />}
+                    <AnimatedStatBox
+                      label="All List"
+                      labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "medium", marginTop: "25%" }} // text size & color
+                      countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }}
+                      color="transparent"
+                      onPress={() => navigation.navigate('OpenEnquiry')}
+                      delay={100}
+                    />
+                  </View>
 
-<TouchableOpacity
-  style={[
-    styles.tabButton,
-    selectedTab === 'overview' && styles.tabButtonActive,
-  ]}
-  onPress={() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setSelectedTab(prev => (prev === 'overview' ? null : 'overview'));
-  }}
->
-  <Text style={selectedTab === 'overview' ? styles.tabButtonTextActive : styles.tabButtonText}>
-    Sale Order
-  </Text>
-</TouchableOpacity>
+                </ImageBackground>
+                <View style={{ marginTop: 10 }}>
+                  <ImageBackground
+                    source={require('../../../assets/Rectanglelist.png')} // second box image
+                    style={{ width: 170, height: 60, justifyContent: 'center', alignItems: 'center' }}
+                    imageStyle={{ borderRadius: 8 }}
+                  >
+                    <View style={{ flexDirection: "row" }}>
+                      icon={
+                        <Image
+                          source={require('../../../assets/pendingicon.png')} // your image
+                          style={{ width: 40, height: 40 }}
+                          resizeMode="contain"
+                        />}
+                      <AnimatedStatBox
+                        label="Pending"
+                        color="transparent"
+                        onPress={() => navigation.navigate('ApprovalPending')}
+                        delay={100}
+                        labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "medium", marginTop: "25%" }} // text size & color
+                        countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }}
+                      />
+                    </View>
+                  </ImageBackground>
+                </View>
+              </View>
+              <View style={{}}>
+                <ImageBackground
+                  source={require('../../../assets/Rectanglelist.png')} // second box image
+                  style={{ width: 175, height: 60, justifyContent: 'center', alignItems: 'center' }}
+                  imageStyle={{ borderRadius: 8 }}
+                >
+                  <View style={{ flexDirection: "row" }}>
+                    icon={
+                      <Image
+                        source={require('../../../assets/Approvedicon.png')} // your image
+                        style={{ width: 40, height: 40 }}
+                        resizeMode="contain"
+                      />}
+                    <AnimatedStatBox label="Approved" color="transparent" onPress={() => navigation.navigate('ApprovedList')} delay={100} labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "medium", marginTop: "25%" }} // text size & color
+                      countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }} />
+                  </View>
+                </ImageBackground>
+                <View style={{ marginTop: 10 }}>
+                  <ImageBackground
+                    source={require('../../../assets/Rectanglelist.png')} // second box image
+                    style={{ width: 175, height: 60, justifyContent: 'center', alignItems: 'center' }}
+                    imageStyle={{ borderRadius: 8 }}
+                  >
+                    <View style={{ flexDirection: "row" }}>
+                      icon={
+                        <Image
+                          source={require('../../../assets/completed.png')} // your image
+                          style={{ width: 40, height: 40 }}
+                          resizeMode="contain"
+                        />}
+
+                      <AnimatedStatBox label="Lost" color="transparent" onPress={() => navigation.navigate('LostList')}
+                        delay={100}
+                        labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "medium", marginTop: "25%" }} // text size & color
+                        countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }} />
+                    </View>
+                  </ImageBackground>
+                </View>
+              </View>
+              <View >
+                <ImageBackground
+                  source={require('../../../assets/Rectanglelist.png')} // second box image
+                  style={{ width: 170, height: 60, justifyContent: 'center', alignItems: 'center' }}
+                  imageStyle={{ borderRadius: 8 }}
+                >
+                  <View style={{ flexDirection: "row" }}>
+                    icon={
+                      <Image
+                        source={require('../../../assets/completed.png')} // your image
+                        style={{ width: 40, height: 40 }}
+                        resizeMode="contain"
+                      />}
+                    <AnimatedStatBox label="Completed" color="transparent" onPress={() => navigation.navigate('CompletedOrder')} delay={100} labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "medium", marginTop: "25%" }} // text size & color
+                      countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }} />
+                  </View>
+                </ImageBackground>
+                <View style={{ marginTop: 10 }}>
+                  <ImageBackground
+                    source={require('../../../assets/Rectanglelist.png')} // second box image
+                    style={{ width: 170, height: 60, justifyContent: 'center', alignItems: 'center' }}
+                    imageStyle={{ borderRadius: 8 }}
+                  >
+                    <View style={{ flexDirection: "row" }}>
+                      icon={
+                        <Image
+                          source={require('../../../assets/saleorder.png')} // your image
+                          style={{ width: 40, height: 40 }}
+                          resizeMode="contain"
+                        />}
+                      <AnimatedStatBox label="Sale Order" color="transparent" onPress={() => navigation.navigate('SonumberList')} delay={100} labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "medium", marginTop: "25%" }} // text size & color
+                        countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }} />
+                    </View>
+                  </ImageBackground>
+                </View>
+              </View>
+            </ScrollView>
+
+<View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 20 }}>
+  {/* Bar Chart */}
+  <BarChart
+    data={{
+      labels: [], // No labels
+      datasets: [{ data: [30, 45, 28, 80, 99, 43, 50] }],
+    }}
+    width={screenWidth * 0.45}
+    height={150}
+    fromZero
+    showValuesOnTopOfBars={false}
+    withInnerLines={false}
+    withHorizontalLabels={false}
+    withVerticalLabels={false}
+    chartConfig={{
+      backgroundGradientFrom: 'transparent',
+      backgroundGradientTo: 'transparent',
+      fillShadowGradient: '#0000FF',
+      fillShadowGradientOpacity: 1,
+      color: () => '#0000FF',
+      barPercentage: 0.6,
+    }}
+    style={{ backgroundColor: 'transparent' }}
+  />
+
+  {/* Line Chart */}
+  <LineChart
+    data={{
+      labels: [], // No labels
+      datasets: [{ data: [20, 40, 35, 60, 85, 40, 70] }],
+    }}
+    width={screenWidth * 0.45}
+    height={150}
+    fromZero
+    withDots={true}
+    withShadow={false}
+    withInnerLines={false}
+    withHorizontalLabels={false}
+    withVerticalLabels={false}
+    chartConfig={{
+      backgroundGradientFrom: 'transparent',
+      backgroundGradientTo: 'transparent',
+      color: () => '#0000FF',
+      strokeWidth: 2,
+    }}
+    bezier
+    style={{ backgroundColor: 'transparent' }}
+  />
+</View>
+
+
+            <View style={[styles.listSection, { flexGrow: 1 }]}>
+              <Text style={styles.listTitle}>Recent Visits</Text>
+              {postcreatevisitData.slice(0, 5).map((item) => (
+                <View key={item.id} style={styles.shadowWrapper}>
+                  <View style={styles.listItem}>
+                    <Text style={styles.listName}>
+                      {Array.isArray(item.partner_id) ? item.partner_id[1] : 'N/A'}
+                    </Text>
+                    <View style={styles.listRow}>
+                      <Text style={[styles.listDetail, { width: 120 }]} numberOfLines={1} ellipsizeMode="tail">
+                        {item.product_category || 'N/A'}
+                      </Text>
+                      <Text style={[styles.listDetail, { width: 80, textAlign: 'center' }]}>
+                        {item.required_qty || 0} Tons
+                      </Text>
+                      <Text style={[styles.listDetail, { width: 100, textAlign: 'center' }]}>
+                        {item.followup_date ? new Date(item.followup_date).toLocaleDateString() : new Date().toLocaleDateString()}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </View>
+            {/* 🔹 Pending Visits */}
+            <View style={[styles.listSection, { flexGrow: 1 }]}>
+              <Text style={styles.listTitle}>Pending Visits</Text>
+              {postcreatevisitData
+                .filter((item) => item.followup_date && new Date(item.followup_date) > new Date())
+                .slice(0, 5)
+                .map((item) => (
+                  <View key={item.id} style={styles.pendinglistItem}>
+                    <Text style={styles.listName}>
+                      {Array.isArray(item.partner_id) ? item.partner_id[1] : 'N/A'}
+                    </Text>
+                    <View style={styles.listRow}>
+                      <Text style={[styles.listDetail, { width: 120 }]} numberOfLines={1} ellipsizeMode="tail">
+                        {item.product_category || 'N/A'}
+                      </Text>
+                      <Text style={[styles.listDetail, { width: 80, textAlign: 'center' }]}>
+                        {item.required_qty || 0} Tons
+                      </Text>
+                      <Text style={[styles.listDetail, { width: 100, textAlign: 'center' }]}>
+                        {item.followup_date ? new Date(item.followup_date).toLocaleDateString() : new Date().toLocaleDateString()}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+            </View>
+          </Animated.ScrollView>
         </View>
-
-        {/* Tab Content */}
-{selectedTab === 'Visit' && (
-<AnimatedStatsSection visible={selectedTab === 'Visit'}>
- {selectedTab === 'Visit' && (
-  <ScrollView
-    horizontal
-    showsHorizontalScrollIndicator={false}
-    style={styles.Visitcroll}
-    contentContainerStyle={styles.VisitcrollContent}
-    key="visit-stats" // helps re-trigger child animations when reopening
-  >
-    <AnimatedStatBox label="Total List" count={totalListCount} color="#c4438aff" onPress={() => navigation.navigate('OpenEnquiry')} delay={100} />
-    <AnimatedStatBox label="Approval Pending" count={approvalPendingCount} color="#f0af3e" onPress={() => navigation.navigate('ApprovalPending')} delay={300} />
-    <AnimatedStatBox label="Approved List" count={ApprovedListCount} color="#4caf50" onPress={() => navigation.navigate('ApprovedList')} delay={500} />
-    <AnimatedStatBox label="Lost List" count={lostlistCount} color="#d82e2eff" onPress={() => navigation.navigate('LostList')} delay={700} />
-    <AnimatedStatBox label="Order Completed" count={completedCount} color="#3966c2ff" onPress={() => navigation.navigate('CompletedOrder')} delay={900} />
-  </ScrollView>
-)}
-</AnimatedStatsSection>
-
-)}
-        {selectedTab === 'overview' && (
-<AnimatedStatsSection visible={selectedTab === 'overview'}>
- {selectedTab === 'overview' && (
-  <ScrollView
-    horizontal
-    showsHorizontalScrollIndicator={false}
-    style={styles.Visitcroll}
-    contentContainerStyle={styles.VisitcrollContent}
-    key="visit-stats" // helps re-trigger child animations when reopening
-  >
-    <AnimatedStatBox label="Reference" count={completedCount} color="#3966c2ff" onPress={() => navigation.navigate('SonumberList')} delay={900} />
-  </ScrollView>
-)}
-</AnimatedStatsSection>
-        )}
-
-      <View style={styles.listSection}>
-  <Text style={styles.listTitle}>Recent Visits</Text>
-  {postcreatevisitData.slice(0, 5).map((item) => (
-    <View key={item.id} style={styles.listItem}>
-      <Text style={styles.listName}>{Array.isArray(item.partner_id) ? item.partner_id[1] : 'N/A'}</Text>
-      <Text style={styles.listDetail}>Product: {item.product_category || 'N/A'}</Text>
-      <Text style={styles.listDetail}>Qty: {item.required_qty || 0} Tons</Text>
-      <Text style={styles.listDate}>Follow-up: {item.followup_date ? new Date(item.followup_date).toLocaleDateString() : 'N/A'}</Text>
-    </View>
-  ))}
-</View>
-
-{/* 🔹 Pending Visits */}
-<View style={[styles.listSection, { flexGrow: 1 }]}>
-  <Text style={styles.listTitle}>Pending Visits</Text>
-  {postcreatevisitData
-    .filter((item) => item.followup_date && new Date(item.followup_date) > new Date())
-    .slice(0, 5)
-    .map((item) => (
-      <View key={item.id} style={styles.pendinglistItem}>
-        <Text style={styles.listName}>
-          {Array.isArray(item.partner_id) ? item.partner_id[1] : 'N/A'}
-        </Text>
-        <Text style={styles.listDetail}>Product: {item.product_category || 'N/A'}</Text>
-        <Text style={styles.listDetail}>Qty: {item.required_qty || 0} Tons</Text>
-        <Text style={styles.listDate}>
-          Follow-up: {new Date(item.followup_date).toLocaleDateString()}
-        </Text>
-      </View>
-  ))}
-</View>
       </Animated.ScrollView>
-    </View>
     </ImageBackground>
   );
 }
@@ -436,127 +627,93 @@ const StatBox = ({ label, count, color, onPress }) => (
 );
 
 export default Screens;
-
-const chartConfig = {
-  backgroundGradientFrom: '#fff',
-  backgroundGradientTo: '#fff',
-  color: (opacity = 1) => `rgba(94, 135, 237, ${opacity})`,
-  labelColor: (opacity = 1) => `rgba(120, 120, 120, ${opacity})`,
-  strokeWidth: 2,
-  barPercentage: 0.5,
-  propsForDots: { r: '5', strokeWidth: '2', stroke: '#5e87edff' },
-};
-
 const styles = StyleSheet.create({
-    background: {
+  background: {
     flex: 1,
     width: '100%',
   },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.8)', // 👈 optional overlay for readability
+  greeting: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 25,
+    color: '#DDDFE6',
+    fontWeight: 'bold',
+    marginLeft: '3%',
   },
-  targetContainer: {
-  flexDirection: 'row',
-  justifyContent: 'space-around',
-  backgroundColor: '#fff',
-
-  borderRadius: 10,
-  elevation: 4,
-  marginVertical: 10,
-},
-statBox: {
-  alignItems: 'center',
-  flex: 1,
-},
-statBox1: {
-  alignItems: 'center',
-  flexDirection: 'row',
-  justifyContent: 'space-evenly',
-  flex: 1,
-},
-statLabel: {
-  fontSize: 12,
-  color: '#666',
-  fontWeight: '500',
-},
-statLabelout: {
-  fontSize: 12,
-  color: '#666',
-  fontWeight: '500',
-},
-statValue: {
-  fontSize: 12,
-  fontWeight: 'bold',
-  color: '#333',
-},
-targetContainerCenter: {
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: '#fff',
-  borderRadius: 10,
-  elevation: 4,
-  flexDirection:'row',
-  justifyContent:'space-evenly'
-},
-
+  dateText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 16,
+    color: '#DDDFE6',
+    marginTop: 4,
+    marginLeft: '3%',
+  },
+  circleBackground1: {
+    width: 110,
+    height: 170,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    marginLeft: 5,
+    marginTop: 10,
+  },
+  circleBackground2: {
+    width: 120,
+    height: 170,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    marginLeft: 5,
+    marginTop: 10,
+  },
+  circleBackground3: {
+    width: 100,
+    height: 170,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    marginLeft: 5,
+    marginTop: 10,
+  },
+  targetText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 11,
+    color: '#f4f4f5ff',
+    marginTop: 4,
+  },
+  targetTextTitle: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 12,
+    color: '#f4f4f5ff',
+    fontWeight: 'bold',
+    marginLeft: 2
+  },
+  targetTextTitleVisit: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 12,
+    color: '#f4f4f5ff',
+    fontWeight: 'bold',
+    marginLeft: 2,
+    marginBottom: 5
+  },
+  targetTextValue: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 20,
+    color: '#f4f4f5ff',
+    marginTop: 4,
+    fontWeight: "medium"
+  },
+  targetText1: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 11,
+    color: '#f4f4f5ff',
+    marginTop: 4,
+  },
+  targetText2: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 11,
+    color: '#f4f4f5ff',
+    marginTop: 4,
+  },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  pagerView: {
-    height: 50,
-    backgroundColor: '#ffffff',
-    elevation: 8,
-  },
-  pagerPage: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    borderBottomColor: '#d7def0ff',
-    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    elevation: 8,
-  },
- targetRow: {
-  flexDirection: 'row',
-  alignItems: 'center',
-
-},
-
-targetText: {
-  fontSize: 14,
-  fontWeight: '600',
-  color: '#333',
-   justifyContent: 'center',
-   alignItems:'center'
-},
-targetRow: {
-  flexDirection: 'row',
-  justifyContent: 'space-between', // pushes left vs right apart
-  alignItems: 'center',
-  width: '100%',
-  paddingHorizontal: 10,           // gives breathing space left/right
-},
-leftBox: {
-  flex: 1,
-  alignItems: 'flex-start',        // left align
-},
-rightBox: {
-  flex: 1,
-  alignItems: 'flex-end',        
-},
-chartRow: {
-  flexDirection: 'row',
-},
-chartBox: {
-  backgroundColor: '#fff',
-  elevation: 4,
-  marginRight: 2, 
   },
   Visitcroll: {
     marginTop: 20,
@@ -564,114 +721,79 @@ chartBox: {
   },
   VisitcrollContent: {
     flexDirection: 'row',
-    gap: 12,
+    marginLeft: 20,
   },
   colorBox: {
-    width: 130,
-    height: 70,
+    width: 70,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 10,
     elevation: 8,
   },
   boxText: {
-    color: '#fff',
+    color: '#250588',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 12,
   },
   boxNumber: {
-    color: '#fff',
+    color: '#250588',
     fontSize: 10,
     fontWeight: 'bold',
   },
-  followupCard: {
-    width: '100%',
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-  },
-  followupName: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  followupDate: {
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  tabButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
-    marginBottom: 10,
-  },
   tabButton: {
-    paddingHorizontal: 20,
-    marginHorizontal: 20,
-    backgroundColor: '#c4dc7cff',
-    height: 50,
+    backgroundColor: '#ffffffff',
+    height: 40,
     width: '30%',
     justifyContent: 'center',
   },
-  tabButtonActive: {
-    backgroundColor: '#4e297aff',
-  },
   tabButtonText: {
-    fontSize: 14,
+    fontSize: 12,
     textAlign: 'center',
     color: '#333333ff',
   },
   tabButtonTextActive: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#fff',
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  emptyBoxContainer: {
-    height: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyText: {
-    color: '#777',
-    fontSize: 16,
-    fontStyle: 'italic',
-  },
   listSection: {
-  marginTop: 20,
-  paddingHorizontal: 15,
-  flexGrow:1
-},
-listTitle: {
-  fontSize: 16,
-  fontWeight: 'bold',
-  marginBottom: 10,
-  color: '#333',
-},
-listItem: {
-  backgroundColor: '#fff',
-  padding: 12,
-  elevation: 3,
-},
-listName: {
-  fontSize: 15,
-  fontWeight: '600',
-  color: '#222',
-},
-listDetail: {
-  fontSize: 13,
-  color: '#555',
-},
-listDate: {
-  fontSize: 12,
-  color: '#888',
-  marginTop: 1,
-},
-pendinglistItem: {
-  backgroundColor: '#fff',
-  padding: 12,
-  elevation: 3,
-  marginBottom:"30%"
-},
+    paddingHorizontal: 15,
+    flexGrow: 1,
+  },
+  listTitle: {
+    fontSize: 16,
+    marginBottom: 10,
+    color: '#040404ff',
+    fontWeight: '600',
+  },
+  listItem: {
+    backgroundColor: '#250588',
+    padding: 12,
+    elevation: 3,
+    marginBottom: 5,
+    borderRadius: 5,
+  },
+  listName: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#ffffffff',
+    marginTop: 1,
+  },
+  listDetail: {
+    fontSize: 12,
+    color: '#ffffffff',
+  },
+  pendinglistItem: {
+    backgroundColor: '#250588',
+    padding: 12,
+    elevation: 3,
+    marginBottom: '5%',
+  },
+  listRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    marginTop: 4,
+  },
 });
