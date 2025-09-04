@@ -15,7 +15,7 @@ import { postcreatevisit } from '../../../redux/action';
 import { useDispatch, useSelector } from 'react-redux';
 import CircularProgress from 'react-native-circular-progress-indicator';
 import { BarChart, LineChart } from 'react-native-chart-kit';
-
+import BarChartSolid from './BarChartSolid';
 const Screens = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -30,6 +30,9 @@ const Screens = () => {
   const [approvalPendingCount, setApprovalPendingCount] = useState(0);
   const [ApprovedListCount, setApprovedListCount] = useState(0);
   const [lostlistCount, setLostlistCount] = useState(0);
+  const [progressValue, setProgressValue] = useState(0);
+  const [CollectionValue, setCollectionValue] = useState(0);
+const [showThirdChart, setShowThirdChart] = useState(false);
   const postcreatevisitData = useSelector(
     (state) => state.postcreatevisitReducer.data["openEnquiryList"] || []
   );
@@ -98,6 +101,41 @@ const Screens = () => {
 
       return () => backHandler.remove();
     }, [navigation])
+  );
+  // salesfocus
+  useFocusEffect(
+    React.useCallback(() => {
+      let animation = 0;
+      const targetValue = 80; // your target value
+      const interval = setInterval(() => {
+        animation += 1;
+        if (animation > targetValue) {
+          clearInterval(interval);
+        } else {
+          setCollectionValue(animation);
+        }
+      }, 20); // speed of animation (adjust 20ms for smoother/faster)
+
+      return () => clearInterval(interval);
+    }, [])
+  );
+
+  //collection focus
+  useFocusEffect(
+    React.useCallback(() => {
+      let animation = 0;
+      const targetValue = 52; // your target value
+      const interval = setInterval(() => {
+        animation += 1;
+        if (animation > targetValue) {
+          clearInterval(interval);
+        } else {
+          setProgressValue(animation);
+        }
+      }, 20); // speed of animation (adjust 20ms for smoother/faster)
+
+      return () => clearInterval(interval);
+    }, [])
   );
   // 🔹 Fetch data
   useFocusEffect(
@@ -216,6 +254,13 @@ const Screens = () => {
     );
   }
 
+const handleHorizontalScroll = (event) => {
+  const scrollX = event.nativeEvent.contentOffset.x;
+  if (scrollX > 150) { // Adjust this threshold based on your chart width
+    setShowThirdChart(true);
+  }
+};
+
   return (
     <ImageBackground
       source={require('../../../assets/backgroundimg.png')}
@@ -246,7 +291,7 @@ const Screens = () => {
                 <View style={{ alignItems: 'flex-start', padding: 10 }}>
                   <Text style={styles.targetTextTitle}>Sales Target</Text>
                   <View style={{ flexDirection: "row" }}>
-                    <Text style={styles.targetTextValue}>100</Text>
+                    <Text style={styles.targetTextValue}>100 </Text>
                     <Text style={styles.targetTextValue}>MT</Text>
                   </View>
                   <View style={{ flexDirection: "row" }}>
@@ -257,23 +302,37 @@ const Screens = () => {
                 </View>
 
                 {/* Circle placed below the text, centered horizontally */}
-                <View style={{ alignItems: 'center', width: '100%', marginBottom: 5 }}>
-                  <CircularProgress
-                    value={60}
-                    maxValue={100}
-                    radius={35}
-                    activeStrokeWidth={12}
-                    inActiveStrokeWidth={12}
-                    activeStrokeColor="#57D6E2"
-                    inActiveStrokeColor="#9c9c9cff"
-                    inActiveStrokeOpacity={0.3}
-                    duration={1200}
-                    progressValueColor="#11033B"
-                    progressValueStyle={{
-                      fontFamily: 'Inter-Bold',
-                      fontSize: 20,
+                <View style={{ alignItems: 'center', width: '100%', marginBottom: 5, marginTop: 8 }}>
+                  <View
+                    style={{
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 45,
+                      height: 45,
+                      borderRadius: 50,
+                      backgroundColor: '#FFFFFF',
+                      marginBottom: 5,
                     }}
-                  />
+                  >
+                    <CircularProgress
+                      value={CollectionValue}
+                      maxValue={100}
+                      radius={30}
+                      activeStrokeWidth={12}
+                      inActiveStrokeWidth={12}
+                      activeStrokeColor="#57D6E2"
+                      inActiveStrokeColor="#9c9c9cff"
+                      inActiveStrokeOpacity={0.3}
+                      duration={1200}
+                      progressValueColor="#11033B"
+                      progressValueStyle={{
+                        fontFamily: 'Inter-Bold',
+                        fontSize: 20,
+                      }}
+                      valueSuffix="%"
+                      innerCircleColor="#FFFFFF"
+                    />
+                  </View>
                 </View>
               </ImageBackground>
               <ImageBackground
@@ -284,32 +343,45 @@ const Screens = () => {
                 <View style={{ alignItems: 'flex-start', marginLeft: 5, marginTop: 7 }}>
                   <Text style={styles.targetTextTitle}>Collection Target</Text>
                   <View style={{ flexDirection: "row" }}>
-                    <Text style={styles.targetTextValue}>$</Text>
+                    <Text style={styles.targetTextValue}>₹</Text>
                     <Text style={styles.targetTextValue}>50,00,000</Text>
                   </View>
                   <View style={{ flexDirection: "row", marginBottom: "10" }}>
-                    <Text style={styles.targetText}>Achieved </Text>
-                    <Text style={styles.targetText1}>$</Text>
+                    <Text style={styles.targetText}>Collected </Text>
+                    <Text style={styles.targetText1}>₹</Text>
                     <Text style={styles.targetText2}>28,00,000</Text>
                   </View>
                 </View>
-                <View style={{ alignItems: 'center', width: '100%', marginBottom: 5 }}>
-                  <CircularProgress
-                    value={60}
-                    maxValue={100}
-                    radius={35}
-                    activeStrokeWidth={12}
-                    inActiveStrokeWidth={12}
-                    activeStrokeColor="#57D6E2"
-                    inActiveStrokeColor="#9c9c9cff"
-                    inActiveStrokeOpacity={0.3}
-                    duration={1200}
-                    progressValueColor="#11033B"
-                    progressValueStyle={{
-                      fontFamily: 'Inter-Bold',
-                      fontSize: 20,
+                <View style={{ alignItems: 'center', width: '100%', marginBottom: 5, marginTop: 8 }}>
+                  <View
+                    style={{
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 45,
+                      height: 45,
+                      borderRadius: 50,
+                      backgroundColor: '#FFFFFF',
+                      marginBottom: 5,
                     }}
-                  />
+                  >
+                    <CircularProgress
+                      value={progressValue}
+                      maxValue={100}
+                      radius={30}
+                      activeStrokeWidth={12}
+                      inActiveStrokeWidth={12}
+                      activeStrokeColor="#57D6E2"
+                      inActiveStrokeColor="#9c9c9cff"
+                      inActiveStrokeOpacity={0.3}
+                      duration={1200}
+                      progressValueColor="#11033B"
+                      progressValueStyle={{
+                        fontFamily: 'Inter-Bold',
+                        fontSize: 20,
+                      }}
+                      valueSuffix="%"
+                    />
+                  </View>
                 </View>
               </ImageBackground>
 
@@ -321,7 +393,7 @@ const Screens = () => {
                 <View style={{ alignItems: 'flex-start', marginLeft: 10, marginTop: 2 }}>
                   <Text style={styles.targetTextTitle}>Visit</Text>
                   <View style={{ flexDirection: "row", marginTop: 4 }}>
-                    <Text style={styles.targetText}>Planned</Text>
+                    <Text style={styles.targetText}>Planned </Text>
                     <Text style={styles.targetText1}>20</Text>
                   </View>
                   <View style={{ flexDirection: "row", marginTop: 4 }}>
@@ -358,7 +430,7 @@ const Screens = () => {
                 </View>
 
                 <View style={{ flexDirection: "row", marginLeft: 6 }}>
-                  <Text style={styles.targetTextValue}>$</Text>
+                  <Text style={styles.targetTextValue}>₹</Text>
                   <Text style={styles.targetTextValue}>1,00,000</Text>
                 </View>
               </ImageBackground>
@@ -396,13 +468,13 @@ const Screens = () => {
                   <View style={{ flexDirection: "row" }}>
                     icon={
                       <Image
-                        source={require('../../../assets/allList.png')} // your image
+                        source={require('../../../assets/allList.png')}
                         style={{ width: 40, height: 40 }}
                         resizeMode="contain"
                       />}
                     <AnimatedStatBox
                       label="All List"
-                      labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "medium", marginTop: "25%" }} // text size & color
+                      labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "medium", marginTop: "25%" }}
                       countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }}
                       color="transparent"
                       onPress={() => navigation.navigate('OpenEnquiry')}
@@ -413,7 +485,7 @@ const Screens = () => {
                 </ImageBackground>
                 <View style={{ marginTop: 10 }}>
                   <ImageBackground
-                    source={require('../../../assets/Rectanglelist.png')} // second box image
+                    source={require('../../../assets/Rectanglelist.png')}
                     style={{ width: 170, height: 60, justifyContent: 'center', alignItems: 'center' }}
                     imageStyle={{ borderRadius: 8 }}
                   >
@@ -438,18 +510,18 @@ const Screens = () => {
               </View>
               <View style={{}}>
                 <ImageBackground
-                  source={require('../../../assets/Rectanglelist.png')} // second box image
+                  source={require('../../../assets/Rectanglelist.png')}
                   style={{ width: 175, height: 60, justifyContent: 'center', alignItems: 'center' }}
                   imageStyle={{ borderRadius: 8 }}
                 >
                   <View style={{ flexDirection: "row" }}>
                     icon={
                       <Image
-                        source={require('../../../assets/Approvedicon.png')} // your image
+                        source={require('../../../assets/Approvedicon.png')}
                         style={{ width: 40, height: 40 }}
                         resizeMode="contain"
                       />}
-                    <AnimatedStatBox label="Approved" color="transparent" onPress={() => navigation.navigate('ApprovedList')} delay={100} labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "medium", marginTop: "25%" }} // text size & color
+                    <AnimatedStatBox label="Approved" color="transparent" onPress={() => navigation.navigate('ApprovedList')} delay={50} labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "medium", marginTop: "25%" }} // text size & color
                       countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }} />
                   </View>
                 </ImageBackground>
@@ -468,7 +540,7 @@ const Screens = () => {
                         />}
 
                       <AnimatedStatBox label="Lost" color="transparent" onPress={() => navigation.navigate('LostList')}
-                        delay={100}
+                        delay={300}
                         labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "medium", marginTop: "25%" }} // text size & color
                         countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }} />
                     </View>
@@ -512,68 +584,80 @@ const Screens = () => {
                 </View>
               </View>
             </ScrollView>
-
-<View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 20 }}>
-  {/* Bar Chart */}
-  <BarChart
-    data={{
-      labels: [], // No labels
-      datasets: [{ data: [30, 45, 28, 80, 99, 43, 50] }],
-    }}
-    width={screenWidth * 0.45}
-    height={150}
-    fromZero
-    showValuesOnTopOfBars={false}
-    withInnerLines={false}
-    withHorizontalLabels={false}
-    withVerticalLabels={false}
-    chartConfig={{
-      backgroundGradientFrom: 'transparent',
-      backgroundGradientTo: 'transparent',
-      fillShadowGradient: '#0000FF',
-      fillShadowGradientOpacity: 1,
-      color: () => '#0000FF',
-      barPercentage: 0.6,
-    }}
-    style={{ backgroundColor: 'transparent' }}
-  />
-
-  {/* Line Chart */}
-<LineChart
-  data={{
-    labels: [],
-    datasets: [{ data: [20, 40, 35, 60, 85, 40, 70] }],
-  }}
-  width={screenWidth * 0.45}
-  height={150}
-  fromZero
-  withDots
-  withShadow={false}
-  withInnerLines={false}
-  withHorizontalLabels={false}
-  withVerticalLabels={false}
-  chartConfig={{
-    backgroundColor: 'transparent',  // Chart container
-    backgroundGradientFrom: 'transparent',
-    backgroundGradientTo: 'transparent',
-    fillShadowGradient: 'transparent', // Fill below line
-    fillShadowGradientOpacity: 0,
-    color: () => '#0000FF',
-    strokeWidth: 2,
-    propsForBackgroundLines: {
-      stroke: 'transparent', // Removes faint lines that might appear black
-    },
-    propsForLabels: {
-      fill: 'transparent', // Ensures label background doesn't add color
-    },
-  }}
-  bezier
-  style={{
-    backgroundColor: 'transparent',
-  }}
-/>
-</View>
-
+<ScrollView
+  horizontal
+  showsHorizontalScrollIndicator={false}
+  onScroll={handleHorizontalScroll}
+  scrollEventThrottle={16}
+  contentContainerStyle={{ flexDirection: 'row',}}
+          >
+            <View>
+            <View style={{ flexDirection: 'row', marginTop: 20, backgroundColor: 'transparent' }}>
+              <ImageBackground
+                source={require('../../../assets/Chartbg.png')} // second box image
+                style={{ width: 175, height: 150, justifyContent: 'center', alignItems: 'center' }}
+                imageStyle={{ borderRadius: 8 }}
+              >
+                <Text style={[styles.ChartText1, { marginRight: '60%' }]}>Sales</Text>
+                <BarChartSolid data={[30, 45, 28, 80, 99, 43, 50]} height={80} color="#0C439E" />
+                <Text style={[styles.ChartText2, { marginRight: '55%' }]}>80 MT</Text>
+              </ImageBackground>
+              <ImageBackground
+                source={require('../../../assets/Chartbg.png')} // second box image
+                style={{ width: 175, height: 150, justifyContent: 'center', alignItems: 'center' }}
+                imageStyle={{ borderRadius: 8 }}
+              >
+                <Text style={[styles.ChartText1, { marginRight: '45%' }]}>Collections</Text>
+                <LineChart
+                  transparent={true}
+                  data={{
+                    labels: [],
+                    datasets: [{ data: [20, 40, 35, 60, 55, 40, 70, 60, 50] }],
+                  }}
+                  width={screenWidth * 0.60}
+                  height={90}
+                  fromZero
+                  withDots={false}
+                  withShadow={false}
+                  withInnerLines={false}
+                  withHorizontalLabels={false}
+                  withVerticalLabels={false}
+                  chartConfig={{
+                    backgroundColor: 'transparent',
+                    backgroundGradientFrom: 'transparent',
+                    backgroundGradientTo: 'transparent',
+                    fillShadowGradient: 'transparent',
+                    fillShadowGradientOpacity: 0,
+                    color: () => '#0C439E',
+                    strokeWidth: 2,
+                    propsForBackgroundLines: {
+                      stroke: 'transparent',
+                    },
+                    propsForLabels: {
+                      fill: 'transparent',
+                    },
+                  }}
+                  bezier
+                  style={{
+                    backgroundColor: 'transparent',
+                    transform: [{ translateX: -30 }],
+                  }}
+                />
+                <Text style={[styles.ChartText2, { marginRight: '40%' }]}>₹ 1,00,000</Text>
+              </ImageBackground>
+               
+  <ImageBackground
+    source={require('../../../assets/Chartbg.png')}
+    style={{ width: 175, height: 150, justifyContent: 'center', alignItems: 'center' }}
+    imageStyle={{ borderRadius: 8 }}
+  >
+    <Text style={[styles.ChartText1, { marginRight: '60%',marginLeft:"3%" }]}>Sales</Text>
+    <BarChartSolid data={[30, 45, 28, 80, 99, 43, 50]} height={80} color="#0C439E" />
+    <Text style={[styles.ChartText2, { marginRight: '55%' }]}>80 MT</Text>
+  </ImageBackground>
+   </View> 
+   </View>       
+</ScrollView>
             <View style={[styles.listSection, { flexGrow: 1 }]}>
               <Text style={styles.listTitle}>Recent Visits</Text>
               {postcreatevisitData.slice(0, 5).map((item) => (
@@ -720,6 +804,20 @@ const styles = StyleSheet.create({
     color: '#f4f4f5ff',
     marginTop: 4,
   },
+  ChartText1: {
+    fontFamily: 'Inter-semibold',
+    fontSize: 15,
+    color: '#ffffff',
+    marginTop: 2,
+    fontWeight: "semibold"
+  },
+  ChartText2: {
+    fontFamily: 'Inter-semibold',
+    fontSize: 18,
+    color: '#fff9f9',
+    fontWeight: "bold"
+  },
+
   center: {
     flex: 1,
     justifyContent: 'center',
@@ -728,10 +826,6 @@ const styles = StyleSheet.create({
   Visitcroll: {
     marginTop: 20,
     paddingHorizontal: 5,
-  },
-  VisitcrollContent: {
-    flexDirection: 'row',
-    marginLeft: 20,
   },
   colorBox: {
     width: 70,
@@ -750,23 +844,6 @@ const styles = StyleSheet.create({
     color: '#250588',
     fontSize: 10,
     fontWeight: 'bold',
-  },
-  tabButton: {
-    backgroundColor: '#ffffffff',
-    height: 40,
-    width: '30%',
-    justifyContent: 'center',
-  },
-  tabButtonText: {
-    fontSize: 12,
-    textAlign: 'center',
-    color: '#333333ff',
-  },
-  tabButtonTextActive: {
-    fontSize: 12,
-    color: '#fff',
-    fontWeight: 'bold',
-    textAlign: 'center',
   },
   listSection: {
     paddingHorizontal: 15,
@@ -806,4 +883,5 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     marginTop: 4,
   },
+
 });
