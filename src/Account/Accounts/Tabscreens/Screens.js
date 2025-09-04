@@ -539,30 +539,40 @@ const Screens = () => {
   />
 
   {/* Line Chart */}
-  <LineChart
-    data={{
-      labels: [], // No labels
-      datasets: [{ data: [20, 40, 35, 60, 85, 40, 70] }],
-    }}
-    width={screenWidth * 0.45}
-    height={150}
-    fromZero
-    withDots={true}
-    withShadow={false}
-    withInnerLines={false}
-    withHorizontalLabels={false}
-    withVerticalLabels={false}
-    chartConfig={{
-      backgroundGradientFrom: 'transparent',
-      backgroundGradientTo: 'transparent',
-      color: () => '#0000FF',
-      strokeWidth: 2,
-    }}
-    bezier
-    style={{ backgroundColor: 'transparent' }}
-  />
+<LineChart
+  data={{
+    labels: [],
+    datasets: [{ data: [20, 40, 35, 60, 85, 40, 70] }],
+  }}
+  width={screenWidth * 0.45}
+  height={150}
+  fromZero
+  withDots
+  withShadow={false}
+  withInnerLines={false}
+  withHorizontalLabels={false}
+  withVerticalLabels={false}
+  chartConfig={{
+    backgroundColor: 'transparent',  // Chart container
+    backgroundGradientFrom: 'transparent',
+    backgroundGradientTo: 'transparent',
+    fillShadowGradient: 'transparent', // Fill below line
+    fillShadowGradientOpacity: 0,
+    color: () => '#0000FF',
+    strokeWidth: 2,
+    propsForBackgroundLines: {
+      stroke: 'transparent', // Removes faint lines that might appear black
+    },
+    propsForLabels: {
+      fill: 'transparent', // Ensures label background doesn't add color
+    },
+  }}
+  bezier
+  style={{
+    backgroundColor: 'transparent',
+  }}
+/>
 </View>
-
 
             <View style={[styles.listSection, { flexGrow: 1 }]}>
               <Text style={styles.listTitle}>Recent Visits</Text>

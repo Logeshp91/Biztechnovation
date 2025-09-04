@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, TextInput ,ImageBackground} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { postcreatevisit } from '../../../redux/action';
 import { useNavigation } from '@react-navigation/native';
@@ -127,34 +127,44 @@ const CompletedOrder = () => {
       style={styles.card}
       onPress={() => { enquiryData: item }}
     >
+    <View style={styles.headerRow}>
+      <Text style={styles.headerText}>{item.customer_name}</Text>
+      <Text style={styles.headerText}>{item.create_date}</Text>
+    </View>
+    <View style={{flexDirection:"row",justifyContent:"center",backgroundColor:"#c4c3efff"}}>
+      <Text>
+        <Text style={styles.value}></Text> {item.purpose_of_visit}
+      </Text>
+      </View>
+    {/* Reference and SO Number */}
+    <View style={styles.row}>
       <Text style={styles.title}>{item.reference}</Text>
-        <Text>
-        <Text style={styles.label}>Created On:</Text> {item.create_date}
-      </Text>
-      <Text>
-        <Text style={styles.label}>Purpose:</Text> {item.purpose_of_visit}
-      </Text>
-      <Text>
-        <Text style={styles.label}>Customer:</Text> {item.customer_name}
-      </Text>
-      <Text>
-        <Text style={styles.label}>Product Category:</Text> {item.product_category}
-      </Text>
-      <Text>
-        <Text style={styles.label}>brand:</Text> {item.brand}
-      </Text>
-      <Text>
-        <Text style={styles.label}>Quantity:</Text> {item.qty}
-      </Text>
-      <Text>
-        <Text style={styles.label}>Remarks:</Text> {item.remarks}
-      </Text>
-      <Text>
-        <Text style={styles.label}>Visit Outcomes:</Text> {item.outcome_visit}
-      </Text>
-      <Text>
-        <Text style={styles.label}>SO Number:</Text> {item.so_number}
-      </Text>
+      <Text style={styles.title}>{item.so_number}</Text>
+    </View>
+
+    <View style={styles.infoRow}>
+      <View style={styles.infoItem}>
+        <Text style={styles.label}>Product</Text>
+        <Text style={styles.value}>{item.product_category}</Text>
+      </View>
+      <View style={styles.infoItem}>
+        <Text style={styles.label}>Brand</Text>
+        <Text style={styles.value}>{item.brand}</Text>
+      </View>
+      <View style={styles.infoItem}>
+        <Text style={styles.label}>Visit</Text>
+        <Text style={styles.value}>{item.outcome_visit}</Text>
+      </View>
+      <View style={styles.infoItem}>
+        <Text style={styles.label}>Quantity</Text>
+        <Text style={styles.value}>{item.qty}</Text>
+      </View>
+    </View>
+
+    <View style={styles.belowrow}>
+      <Text style={styles.remarkslabel}>Remarks: </Text>
+      <Text style={styles.value}>{item.remarks}</Text>
+    </View>
     </TouchableOpacity>
   );
 
@@ -168,6 +178,11 @@ const CompletedOrder = () => {
   }
 
   return (
+            <ImageBackground
+              source={require("../../../assets/backgroundimg.png")}
+              style={styles.background}
+              resizeMode="cover"
+            >
     <View style={styles.container}>
       <TextInput
         style={styles.searchInput}
@@ -183,43 +198,138 @@ const CompletedOrder = () => {
         ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 20 }}>No enquiries found.</Text>}
       />
     </View>
+    </ImageBackground>
   );
 };
 
 export default CompletedOrder;
 
 const styles = StyleSheet.create({
+   background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    justifyContent: "center"
+  },
   container: {
     flex: 1,
     padding: 15,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: "transparent",
+    marginTop: 20
+  },
+  searchInput: {
+    backgroundColor: "#fff",
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 15,
+    borderColor: "purple",
+    borderWidth: 1
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 15,
-    shadowColor: '#000',
+    backgroundColor: "#250588",
+    marginBottom: 10,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 5,
-    elevation: 5,
+    elevation: 5
   },
-  searchInput: { backgroundColor: "#fff", padding: 10, borderRadius: 8, marginBottom: 15 },
+  headerRow: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  backgroundColor: "#290895",
+  paddingVertical: 6,
+  paddingHorizontal: 8,
+  borderTopLeftRadius: 6,
+  borderTopRightRadius: 6,
+},
+headerText: {
+  color: "#fff",
+  fontWeight: "bold",
+  fontSize: 12,
+},
+card: {
+  backgroundColor: "#fff", // Better contrast
+  borderRadius: 8,
+  marginBottom: 10,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.2,
+  shadowRadius: 5,
+  elevation: 5,
+},
 
+  headerText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 12,
+    marginTop: 5,
+    marginHorizontal: 5,
+  },
+  miniCard: {
+    backgroundColor: "#e8e7e7ff",
+    borderRadius: 5,
+    padding: 5
+  },
   title: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 13,
+    fontWeight: "bold",
     marginBottom: 8,
-    color: '#3966c2',
+    color: "#250588",
+    marginLeft:5
   },
   label: {
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#878585ff",
+    fontSize: 10
+  },
+  remarkslabel: {
+    fontWeight: "bold",
+    color: "#878585ff",
+    fontSize: 10,
+    marginLeft:5
+  },
+  value: {
+    fontWeight: "bold",
+    color: "#250588",
+    fontSize: 12,
+    textAlign: "center"
   },
   loader: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center"
   },
+  loaderText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#250588"
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 5,
+    alignItems: "center",
+  },
+    belowrow: {
+    flexDirection: "row",
+    marginBottom: 5,
+    alignItems: "center",
+    borderTopWidth:1,
+    borderTopColor:"#acaaaaff"
+  },
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 5
+  },
+  infoItem: {
+    flex: 1,
+    alignItems: "center"
+  }
 });

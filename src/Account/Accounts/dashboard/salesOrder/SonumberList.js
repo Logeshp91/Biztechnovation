@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, TextInput ,ImageBackground} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { postcreatevisit } from '../../../../redux/action';
 import { useNavigation } from '@react-navigation/native';
@@ -14,7 +14,6 @@ const SonumberList = () => {
 
   const [enquiries, setEnquiries] = useState([]);
 
-  // Fetch SO list
   useEffect(() => {
     const payload = {
       jsonrpc: "2.0",
@@ -35,28 +34,27 @@ const SonumberList = () => {
     dispatch(postcreatevisit(payload, "saleorderlist"));
   }, [dispatch]);
 
-useEffect(() => {
-  if (Array.isArray(saleorderList)) {
-    const normalizedData = saleorderList
-      .filter(item => Array.isArray(item.so_id) && item.so_id.length > 1)
-      .map(item => ({
-        id: item.id,
-        reference: item.name || "N/A",
-        create_date: formatDateTime(item.create_date),
-        purpose_of_visit: item.visit_purpose || "N/A",
-        customer_name: Array.isArray(item.partner_id) ? item.partner_id[1] : "N/A",
-        brand: Array.isArray(item.brand) ? item.brand[1] : "N/A",
-        product_category: Array.isArray(item.product_category) ? item.product_category[1] : "N/A",
-        qty: item.required_qty ?? "N/A",
-        remarks: item.remarks || "N/A",
-        outcome_visit: Array.isArray(item.outcome_visit) ? item.outcome_visit[1] : "N/A",
-        so_id: Array.isArray(item.so_id) ? item.so_id[0] : null,  // correct ID
-        so_number: Array.isArray(item.so_id) ? item.so_id[1] : "N/A"
-      }));
-    setEnquiries(normalizedData);
-  }
-}, [saleorderList]);
-
+  useEffect(() => {
+    if (Array.isArray(saleorderList)) {
+      const normalizedData = saleorderList
+        .filter(item => Array.isArray(item.so_id) && item.so_id.length > 1)
+        .map(item => ({
+          id: item.id,
+          reference: item.name || "N/A",
+          create_date: formatDateTime(item.create_date),
+          purpose_of_visit: item.visit_purpose || "N/A",
+          customer_name: Array.isArray(item.partner_id) ? item.partner_id[1] : "N/A",
+          brand: Array.isArray(item.brand) ? item.brand[1] : "N/A",
+          product_category: Array.isArray(item.product_category) ? item.product_category[1] : "N/A",
+          qty: item.required_qty ?? "N/A",
+          remarks: item.remarks || "N/A",
+          outcome_visit: Array.isArray(item.outcome_visit) ? item.outcome_visit[1] : "N/A",
+          so_id: Array.isArray(item.so_id) ? item.so_id[0] : null,
+          so_number: Array.isArray(item.so_id) ? item.so_id[1] : "N/A"
+        }));
+      setEnquiries(normalizedData);
+    }
+  }, [saleorderList]);
 
   const formatDateTime = (dateStr) => {
     if (!dateStr) return "N/A";
@@ -88,38 +86,68 @@ useEffect(() => {
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      <Text style={styles.title}>{item.reference}</Text>
-      <Text><Text style={styles.label}>Created On:</Text> {item.create_date}</Text>
-      <Text><Text style={styles.label}>Purpose:</Text> {item.purpose_of_visit}</Text>
-      <Text><Text style={styles.label}>Customer:</Text> {item.customer_name}</Text>
-      <Text><Text style={styles.label}>Product Category:</Text> {item.product_category}</Text>
-      <Text><Text style={styles.label}>Brand:</Text> {item.brand}</Text>
-      <Text><Text style={styles.label}>Quantity:</Text> {item.qty}</Text>
-      <Text><Text style={styles.label}>Remarks:</Text> {item.remarks}</Text>
-      <Text><Text style={styles.label}>Visit Outcomes:</Text> {item.outcome_visit}</Text>
+    <View style={styles.headerRow}>
+      <Text style={styles.headerText}>{item.customer_name}</Text>
+      <Text style={styles.headerText}>{item.create_date}</Text>
+    </View>
+    <View style={{flexDirection:"row",justifyContent:"center",backgroundColor:"#c4c3efff"}}>
       <Text>
-        <Text style={styles.label}>SO Number:</Text>{" "}
-    <TouchableOpacity
-  onPress={() => navigation.navigate('SonumberSaleOrder', {
-    soId: item.so_id,    // correct ID
-    soNumber: item.so_number
-  })}
->
-  <Text style={{ color: '#3966c2' }}>{item.so_number}</Text>
-</TouchableOpacity>
+        <Text style={styles.value}></Text> {item.purpose_of_visit}
       </Text>
+      </View>
+    {/* Reference and SO Number */}
+    <View style={styles.row}>
+      <Text style={styles.title}>{item.reference}</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('SonumberSaleOrder', {
+            soId: item.so_id,
+            soNumber: item.so_number
+          })}
+        >
+          <Text style={{ color: '#ea22b5ff' }}>{item.so_number}</Text>
+        </TouchableOpacity>
+    </View>
+
+    <View style={styles.infoRow}>
+      <View style={styles.infoItem}>
+        <Text style={styles.label}>Product</Text>
+        <Text style={styles.value}>{item.product_category}</Text>
+      </View>
+      <View style={styles.infoItem}>
+        <Text style={styles.label}>Brand</Text>
+        <Text style={styles.value}>{item.brand}</Text>
+      </View>
+      <View style={styles.infoItem}>
+        <Text style={styles.label}>Visit</Text>
+        <Text style={styles.value}>{item.outcome_visit}</Text>
+      </View>
+      <View style={styles.infoItem}>
+        <Text style={styles.label}>Quantity</Text>
+        <Text style={styles.value}>{item.qty}</Text>
+      </View>
+    </View>
+
+    <View style={styles.belowrow}>
+      <Text style={styles.remarkslabel}>Remarks: </Text>
+      <Text style={styles.value}>{item.remarks}</Text>
+    </View>
     </View>
   );
 
   if (loading) {
     return (
       <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#3966c2" />
+        <ActivityIndicator size="large" color="#b3077fff" />
       </View>
     );
   }
 
   return (
+                <ImageBackground
+                  source={require("../../../../assets/backgroundimg.png")}
+                  style={styles.background}
+                  resizeMode="cover"
+                >
     <View style={styles.container}>
       <TextInput
         style={styles.searchInput}
@@ -135,16 +163,135 @@ useEffect(() => {
         ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 20 }}>No enquiries found.</Text>}
       />
     </View>
+    </ImageBackground>
   );
 };
-
 export default SonumberList;
-
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 15, backgroundColor: '#f2f2f2' },
-  card: { backgroundColor: '#fff', borderRadius: 12, padding: 15, marginBottom: 15, elevation: 5 },
-  searchInput: { backgroundColor: "#fff", padding: 10, borderRadius: 8, marginBottom: 15 },
-  title: { fontSize: 16, fontWeight: 'bold', marginBottom: 8, color: '#3966c2' },
-  label: { fontWeight: 'bold', color: '#333' },
-  loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+ background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    justifyContent: "center"
+  },
+  container: {
+    flex: 1,
+    padding: 15,
+    backgroundColor: "transparent",
+    marginTop: 20
+  },
+  searchInput: {
+    backgroundColor: "#fff",
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 15,
+    borderColor: "purple",
+    borderWidth: 1
+  },
+  card: {
+    backgroundColor: "#250588",
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5
+  },
+  headerRow: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  backgroundColor: "#290895",
+  paddingVertical: 6,
+  paddingHorizontal: 8,
+  borderTopLeftRadius: 6,
+  borderTopRightRadius: 6,
+},
+headerText: {
+  color: "#fff",
+  fontWeight: "bold",
+  fontSize: 12,
+},
+card: {
+  backgroundColor: "#fff", // Better contrast
+  borderRadius: 8,
+  marginBottom: 10,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.2,
+  shadowRadius: 5,
+  elevation: 5,
+},
+
+  headerText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 12,
+    marginTop: 5,
+    marginHorizontal: 5,
+  },
+  miniCard: {
+    backgroundColor: "#e8e7e7ff",
+    borderRadius: 5,
+    padding: 5
+  },
+  title: {
+    fontSize: 13,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: "#250588",
+    marginLeft:5
+  },
+  label: {
+    fontWeight: "bold",
+    color: "#878585ff",
+    fontSize: 10
+  },
+  remarkslabel: {
+    fontWeight: "bold",
+    color: "#878585ff",
+    fontSize: 10,
+    marginLeft:5
+  },
+  value: {
+    fontWeight: "bold",
+    color: "#250588",
+    fontSize: 12,
+    textAlign: "center"
+  },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  loaderText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#250588"
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 5,
+    alignItems: "center",
+  },
+    belowrow: {
+    flexDirection: "row",
+    marginBottom: 5,
+    alignItems: "center",
+    borderTopWidth:1,
+    borderTopColor:"#acaaaaff"
+  },
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 5
+  },
+  infoItem: {
+    flex: 1,
+    alignItems: "center"},
 });
