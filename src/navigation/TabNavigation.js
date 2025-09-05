@@ -15,18 +15,25 @@ import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Foundation from 'react-native-vector-icons/Foundation';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useDispatch, useSelector } from 'react-redux';
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
 const TabNavigation = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false); // actual <Modal>
-  const [isPanelVisible, setIsPanelVisible] = useState(false); // for animation
+  const [isModalVisible, setIsModalVisible] = useState(false); 
+  const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [notificationVisible, setNotificationVisible] = useState(false);
   const PANEL_WIDTH = 250;
   const slideAnim = useRef(new Animated.Value(PANEL_WIDTH)).current;
   const screenWidth = Dimensions.get('window').width;
   const navigation = useNavigation();
+  const { postauthendicationData } = useSelector(state => state.postauthendicationReducer);
+  const user = postauthendicationData || {};
+  const firstLetter = user.partner_display_name
+    ? user.partner_display_name.charAt(0).toUpperCase()
+    : '';
+
   const EmptyScreen = () => {
     return null;
   };
@@ -41,10 +48,7 @@ const TabNavigation = () => {
 
   useEffect(() => {
     if (isPanelVisible) {
-      // reset first (offscreen)
       slideAnim.setValue(PANEL_WIDTH);
-
-      // small delay so RN applies the offscreen position before mounting
       setTimeout(() => {
         setIsModalVisible(true);
 
@@ -144,7 +148,7 @@ const TabNavigation = () => {
               <View style={styles.headerRightWrapper}>
 
                 <View style={styles.circleAvatar}>
-                  <Text style={styles.avatarLetter}>P</Text> {/* Replace 'P' dynamically if needed */}
+                  <Text style={styles.avatarLetter}>{firstLetter}</Text> 
                 </View>
                 {/* <TouchableOpacity
           style={styles.notificationButton}
@@ -177,14 +181,14 @@ const TabNavigation = () => {
                   tabBarActiveTintColor: '#1468F5',
                   tabBarInactiveTintColor: '#747171',
                   tabBarStyle: {
-                    backgroundColor: '#FFFFFF', // or any color you want
-                    borderTopWidth: 0,           // remove the default top border
-                    elevation: 0,                // remove shadow on Android
-                    shadowOpacity: 0,            // remove shadow on iOS
+                    backgroundColor: '#FFFFFF', 
+                    borderTopWidth: 0,         
+                    elevation: 0,               
+                    shadowOpacity: 0,           
                     width: "100%",
                     alignSelf: "center",
                     borderRadius: 10,
-                    marginTop: 0,                // remove tiny top gap
+                    marginTop: 0,               
                   },
                   tabBarLabelStyle: { fontSize: 10, marginLeft: 1 },
                 })}
@@ -263,7 +267,7 @@ const TabNavigation = () => {
 
           <TouchableOpacity
             style={styles.closePanelBtn}
-            onPress={() => setIsPanelVisible(false)} // 👈 smooth close
+            onPress={() => setIsPanelVisible(false)} 
           >
             <Text style={styles.closePanelText}>Close</Text>
           </TouchableOpacity>
@@ -390,7 +394,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: 10,
-    gap: 10, // if RN < 0.71, use marginLeft on children instead
+    gap: 10, 
   },
   notificationButton: {
     position: 'relative',

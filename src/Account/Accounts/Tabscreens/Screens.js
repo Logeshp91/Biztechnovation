@@ -32,13 +32,15 @@ const Screens = () => {
   const [lostlistCount, setLostlistCount] = useState(0);
   const [progressValue, setProgressValue] = useState(0);
   const [CollectionValue, setCollectionValue] = useState(0);
-const [showThirdChart, setShowThirdChart] = useState(false);
+  const [showThirdChart, setShowThirdChart] = useState(false);
   const postcreatevisitData = useSelector(
     (state) => state.postcreatevisitReducer.data["openEnquiryList"] || []
   );
   const postcreatevisitLoading = useSelector(
     (state) => state.postcreatevisitReducer.loading["openEnquiryList"]
   );
+  const { postauthendicationData} = useSelector(state => state.postauthendicationReducer);
+  const user = postauthendicationData || {};
 
   const now = new Date();
   const hours = now.getHours();
@@ -62,17 +64,17 @@ const [showThirdChart, setShowThirdChart] = useState(false);
     { useNativeDriver: true }
   );
 
-const StatBox = ({ label, color, onPress, labelStyle, countStyle }) => (
-  <TouchableOpacity style={[styles.colorBox, { backgroundColor: color }]} onPress={onPress}>
-    <Text style={[styles.boxText, labelStyle]}>{label}</Text>
-  </TouchableOpacity>
-);
-// const StatBox = ({ label, count, color, onPress }) => (
-//   <TouchableOpacity style={[styles.colorBox, { backgroundColor: color }]} onPress={onPress}>
-//     <Text style={styles.boxText}>{label}</Text>
-//     <Text style={styles.boxNumber}>{count}</Text>
-//   </TouchableOpacity>
-// );
+  const StatBox = ({ label, color, onPress, labelStyle }) => (
+    <TouchableOpacity style={[styles.colorBox, { backgroundColor: color }]} onPress={onPress}>
+      <Text style={[styles.boxText, labelStyle]}>{label}</Text>
+    </TouchableOpacity>
+  );
+  // const StatBox = ({ label, count, color, onPress }) => (
+  //   <TouchableOpacity style={[styles.colorBox, { backgroundColor: color }]} onPress={onPress}>
+  //     <Text style={styles.boxText}>{label}</Text>
+  //     <Text style={styles.boxNumber}>{count}</Text>
+  //   </TouchableOpacity>
+  // );
   const backPressRef = useRef(0);
 
   useFocusEffect(
@@ -224,12 +226,12 @@ const StatBox = ({ label, color, onPress, labelStyle, countStyle }) => (
     );
   }
 
-const handleHorizontalScroll = (event) => {
-  const scrollX = event.nativeEvent.contentOffset.x;
-  if (scrollX > 150) { 
-    setShowThirdChart(true);
-  }
-};
+  const handleHorizontalScroll = (event) => {
+    const scrollX = event.nativeEvent.contentOffset.x;
+    if (scrollX > 150) {
+      setShowThirdChart(true);
+    }
+  };
 
   return (
     <ImageBackground
@@ -246,11 +248,11 @@ const handleHorizontalScroll = (event) => {
         <View style={styles.container}>
           <View>
             <Text style={styles.greeting}>
-              {greetingText}, Periyasamy
-              </Text>
+              {greetingText},{ user.partner_display_name || 'No Name'}
+            </Text>
             <Text style={styles.dateText}>
               {formattedDate}
-              </Text>
+            </Text>
           </View>
           <ScrollView
             horizontal
@@ -265,7 +267,7 @@ const handleHorizontalScroll = (event) => {
                 <View style={{ alignItems: 'flex-start', padding: 10 }}>
                   <Text style={styles.targetTextTitle}>Sales Target</Text>
                   <View style={{ flexDirection: "row" }}>
-                    <Text style={styles.targetTextValue}>100{" "}</Text>
+                    <Text style={styles.targetTextValue}>100 {" "}</Text>
                     <Text style={styles.targetTextValue}>MT</Text>
                   </View>
                   <View style={{ flexDirection: "row" }}>
@@ -297,11 +299,9 @@ const handleHorizontalScroll = (event) => {
                       inActiveStrokeOpacity={0.3}
                       duration={1200}
                       progressValueColor="#11033B"
-                      progressValueStyle={{
-                        fontFamily: 'Inter-Bold',
-                        fontSize: 20,
-                      }}
+                      progressValueStyle={{ fontFamily: 'Inter-Bold', fontSize: 20 }}
                       valueSuffix="%"
+                      renderCap={() => <Text style={{ display: 'none' }} />}
                       innerCircleColor="#FFFFFF"
                     />
                   </View>
@@ -351,6 +351,7 @@ const handleHorizontalScroll = (event) => {
                         fontFamily: 'Inter-Bold',
                         fontSize: 20,
                       }}
+                      renderCap={() => <Text style={{ display: 'none' }} />}
                       valueSuffix="%"
                     />
                   </View>
@@ -364,11 +365,11 @@ const handleHorizontalScroll = (event) => {
               >
                 <View style={{ alignItems: 'flex-start', marginLeft: 10, marginTop: 7 }}>
                   <Text style={styles.targetTextTitleVisit}>Visit</Text>
-                  <View style={{ flexDirection: "row" ,marginBottom:5,}}>
+                  <View style={{ flexDirection: "row", marginBottom: 5, }}>
                     <Text style={styles.targetText}>Planned </Text>
                     <Text style={styles.targetText1}>20</Text>
                   </View>
-                  <View style={{ flexDirection: "row", marginBottom:15, }}>
+                  <View style={{ flexDirection: "row", marginBottom: 15, }}>
                     <Text style={styles.targetText}>completed </Text>
                     <Text style={styles.targetText1}>20</Text>
                   </View>
@@ -378,7 +379,7 @@ const handleHorizontalScroll = (event) => {
                   width: '80%',
                   marginTop: 10,
                   marginLeft: 10,
-                  marginBottom:10
+                  marginBottom: 10
                 }}>
                   <View style={{
                     height: 8,
@@ -404,9 +405,9 @@ const handleHorizontalScroll = (event) => {
 
 
             <View>
-<View style={{ width: 120, height: 165, justifyContent: 'center', alignItems: 'center', backgroundColor: '#cecdcdff', marginLeft: 10, marginTop: 10 }}>
-  <Text style={{ color: '#fff', fontSize: 20 }}>hello</Text>
-</View>
+              <View style={{ width: 120, height: 165, justifyContent: 'center', alignItems: 'center', backgroundColor: '#cecdcdff', marginLeft: 10, marginTop: 10 }}>
+                <Text style={{ color: '#fff', fontSize: 20 }}>hello</Text>
+              </View>
             </View>
           </ScrollView>
           <Animated.ScrollView
@@ -432,19 +433,18 @@ const handleHorizontalScroll = (event) => {
                   imageStyle={{}}
                 >
                   <View style={{ flexDirection: "row" }}>
-                  
-                      <Image
-                        source={require('../../../assets/allList.png')}
-                        style={{ width: 40, height: 40 }}
-                        resizeMode="contain"
-                      />
+
+                    <Image
+                      source={require('../../../assets/allList.png')}
+                      style={{ width: 40, height: 40 }}
+                      resizeMode="contain"
+                    />
                     <StatBox
                       label="All List"
                       labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "500", marginTop: 2 }}
-                      countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }}
                       color="transparent"
                       onPress={() => navigation.navigate('OpenEnquiry')}
-                      
+
                     />
                   </View>
 
@@ -456,18 +456,17 @@ const handleHorizontalScroll = (event) => {
                     imageStyle={{ borderRadius: 8 }}
                   >
                     <View style={{ flexDirection: "row" }}>
-                    
-                        <Image
-                          source={require('../../../assets/pendingicon.png')} 
-                          style={{ width: 40, height: 40 }}
-                          resizeMode="contain"
-                        />
+
+                      <Image
+                        source={require('../../../assets/pendingicon.png')}
+                        style={{ width: 40, height: 40 }}
+                        resizeMode="contain"
+                      />
                       <StatBox
                         label="Pending"
                         color="transparent"
                         onPress={() => navigation.navigate('ApprovalPending')}
                         labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "500", marginTop: 2 }}
-                        countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }}
                       />
                     </View>
                   </ImageBackground>
@@ -480,33 +479,33 @@ const handleHorizontalScroll = (event) => {
                   imageStyle={{ borderRadius: 8 }}
                 >
                   <View style={{ flexDirection: "row" }}>
-                  
-                      <Image
-                        source={require('../../../assets/Approvedicon.png')}
-                        style={{ width: 40, height: 40 }}
-                        resizeMode="contain"
-                      />
-                    <StatBox label="Approved" color="transparent" onPress={() => navigation.navigate('ApprovedList')}  labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "500", marginTop: 2 }}
-                      countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }} />
+
+                    <Image
+                      source={require('../../../assets/Approvedicon.png')}
+                      style={{ width: 40, height: 40 }}
+                      resizeMode="contain"
+                    />
+                    <StatBox label="Approved" color="transparent" onPress={() => navigation.navigate('ApprovedList')} labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "500", marginTop: 2 }}
+                    />
                   </View>
                 </ImageBackground>
                 <View style={{ marginTop: 10 }}>
                   <ImageBackground
-                    source={require('../../../assets/Rectanglelist.png')} 
+                    source={require('../../../assets/Rectanglelist.png')}
                     style={{ width: 175, height: 60, justifyContent: 'center', alignItems: 'center' }}
                     imageStyle={{ borderRadius: 8 }}
                   >
                     <View style={{ flexDirection: "row" }}>
-                    
-                        <Image
-                          source={require('../../../assets/completed.png')}
-                          style={{ width: 40, height: 40 }}
-                          resizeMode="contain"
-                        />
+
+                      <Image
+                        source={require('../../../assets/completed.png')}
+                        style={{ width: 40, height: 40 }}
+                        resizeMode="contain"
+                      />
 
                       <StatBox label="Lost" color="transparent" onPress={() => navigation.navigate('LostList')}
-                        labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "500", marginTop: 2 }} 
-                        countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }} />
+                        labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "500", marginTop: 2 }}
+                      />
                     </View>
                   </ImageBackground>
                 </View>
@@ -518,110 +517,110 @@ const handleHorizontalScroll = (event) => {
                   imageStyle={{ borderRadius: 8 }}
                 >
                   <View style={{ flexDirection: "row" }}>
-                  
-                      <Image
-                        source={require('../../../assets/completed.png')} 
-                        style={{ width: 40, height: 40 }}
-                        resizeMode="contain"
-                      />
-                    <StatBox label="Complete" color="transparent" onPress={() => navigation.navigate('CompletedOrder')}  labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "500", marginTop: 2 }} 
-                      countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }} />
+
+                    <Image
+                      source={require('../../../assets/completed.png')}
+                      style={{ width: 40, height: 40 }}
+                      resizeMode="contain"
+                    />
+                    <StatBox label="Complete" color="transparent" onPress={() => navigation.navigate('CompletedOrder')} labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "500", marginTop: 2 }}
+                    />
                   </View>
                 </ImageBackground>
                 <View style={{ marginTop: 10 }}>
                   <ImageBackground
-                    source={require('../../../assets/Rectanglelist.png')} 
+                    source={require('../../../assets/Rectanglelist.png')}
                     style={{ width: 170, height: 60, justifyContent: 'center', alignItems: 'center' }}
                     imageStyle={{ borderRadius: 8 }}
                   >
                     <View style={{ flexDirection: "row" }}>
-                      
-                        <Image
-                          source={require('../../../assets/saleorder.png')} 
-                          style={{ width: 40, height: 40 }}
-                          resizeMode="contain"
-                        />
-                      <StatBox label="Sale Order" color="transparent" onPress={() => navigation.navigate('SonumberList')} labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "500", marginTop: 2 }} 
-                        countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }} />
+
+                      <Image
+                        source={require('../../../assets/saleorder.png')}
+                        style={{ width: 40, height: 40 }}
+                        resizeMode="contain"
+                      />
+                      <StatBox label="Sale Order" color="transparent" onPress={() => navigation.navigate('SonumberList')} labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "500", marginTop: 2 }}
+                      />
                     </View>
                   </ImageBackground>
                 </View>
               </View>
             </ScrollView>
-<ScrollView
-  horizontal
-  showsHorizontalScrollIndicator={false}
-  onScroll={handleHorizontalScroll}
-  scrollEventThrottle={16}
-  contentContainerStyle={{ flexDirection: 'row',}}
-          >
-            <View>
-            <View style={{ flexDirection: 'row', marginTop: 20, backgroundColor: 'transparent' }}>
-              <ImageBackground
-                source={require('../../../assets/Chartbg.png')} 
-                style={{ width: 175, height: 150, justifyContent: 'center', alignItems: 'center' }}
-                imageStyle={{ borderRadius: 8 }}
-              >
-                <Text style={[styles.ChartText1, { marginRight: '60%' }]}>Sales</Text>
-                <BarChartSolid data={[30, 45, 28, 80, 99, 43, 50]} height={80} color="#0C439E" />
-                <Text style={[styles.ChartText2, { marginRight: '55%' }]}>80{" "}MT</Text>
-              </ImageBackground>
-              <ImageBackground
-                source={require('../../../assets/Chartbg.png')} 
-                style={{ width: 175, height: 150, justifyContent: 'center', alignItems: 'center' }}
-                imageStyle={{ borderRadius: 8 }}
-              >
-                <Text style={[styles.ChartText1, { marginRight: '45%' }]}>Collections</Text>
-                <LineChart
-                  transparent={true}
-                  data={{
-                    labels: [],
-                    datasets: [{ data: [20, 40, 35, 60, 55, 40, 70, 60, 50] }],
-                  }}
-                  width={screenWidth * 0.60}
-                  height={90}
-                  fromZero
-                  withDots={false}
-                  withShadow={false}
-                  withInnerLines={false}
-                  withHorizontalLabels={false}
-                  withVerticalLabels={false}
-                  chartConfig={{
-                    backgroundColor: 'transparent',
-                    backgroundGradientFrom: 'transparent',
-                    backgroundGradientTo: 'transparent',
-                    fillShadowGradient: 'transparent',
-                    fillShadowGradientOpacity: 0,
-                    color: () => '#0C439E',
-                    strokeWidth: 2,
-                    propsForBackgroundLines: {
-                      stroke: 'transparent',
-                    },
-                    propsForLabels: {
-                      fill: 'transparent',
-                    },
-                  }}
-                  bezier
-                  style={{
-                    backgroundColor: 'transparent',
-                    transform: [{ translateX: -30 }],
-                  }}
-                />
-                <Text style={[styles.ChartText2, { marginRight: '40%' }]}>₹ 1,00,000</Text>
-              </ImageBackground>
-               
-  <ImageBackground
-    source={require('../../../assets/Chartbg.png')}
-    style={{ width: 175, height: 150, justifyContent: 'center', alignItems: 'center' }}
-    imageStyle={{ borderRadius: 8 }}
-  >
-    <Text style={[styles.ChartText1, { marginRight: '60%',marginLeft:"3%" }]}>Sales</Text>
-    <BarChartSolid data={[30, 45, 28, 80, 99, 43, 50]} height={80} color="#0C439E" />
-    <Text style={[styles.ChartText2, { marginRight: '55%' }]}>80 MT</Text>
-  </ImageBackground>
-   </View> 
-   </View>       
-</ScrollView>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              onScroll={handleHorizontalScroll}
+              scrollEventThrottle={16}
+              contentContainerStyle={{ flexDirection: 'row', }}
+            >
+              <View>
+                <View style={{ flexDirection: 'row', marginTop: 20, backgroundColor: 'transparent' }}>
+                  <ImageBackground
+                    source={require('../../../assets/Chartbg.png')}
+                    style={{ width: 175, height: 150, justifyContent: 'center', alignItems: 'center' }}
+                    imageStyle={{ borderRadius: 8 }}
+                  >
+                    <Text style={[styles.ChartText1, { marginRight: '60%' }]}>Sales</Text>
+                    <BarChartSolid data={[30, 45, 28, 80, 99, 43, 50]} height={80} color="#0C439E" />
+                    <Text style={[styles.ChartText2, { marginRight: '55%' }]}>80{" "}MT</Text>
+                  </ImageBackground>
+                  <ImageBackground
+                    source={require('../../../assets/Chartbg.png')}
+                    style={{ width: 175, height: 150, justifyContent: 'center', alignItems: 'center' }}
+                    imageStyle={{ borderRadius: 8 }}
+                  >
+                    <Text style={[styles.ChartText1, { marginRight: '45%' }]}>Collections</Text>
+                    <LineChart
+                      transparent={true}
+                      data={{
+                        labels: [],
+                        datasets: [{ data: [20, 40, 35, 60, 55, 40, 70, 60, 50] }],
+                      }}
+                      width={screenWidth * 0.60}
+                      height={90}
+                      fromZero
+                      withDots={false}
+                      withShadow={false}
+                      withInnerLines={false}
+                      withHorizontalLabels={false}
+                      withVerticalLabels={false}
+                      chartConfig={{
+                        backgroundColor: 'transparent',
+                        backgroundGradientFrom: 'transparent',
+                        backgroundGradientTo: 'transparent',
+                        fillShadowGradient: 'transparent',
+                        fillShadowGradientOpacity: 0,
+                        color: () => '#0C439E',
+                        strokeWidth: 2,
+                        propsForBackgroundLines: {
+                          stroke: 'transparent',
+                        },
+                        propsForLabels: {
+                          fill: 'transparent',
+                        },
+                      }}
+                      bezier
+                      style={{
+                        backgroundColor: 'transparent',
+                        transform: [{ translateX: -30 }],
+                      }}
+                    />
+                    <Text style={[styles.ChartText2, { marginRight: '40%' }]}>₹ 1,00,000</Text>
+                  </ImageBackground>
+
+                  <ImageBackground
+                    source={require('../../../assets/Chartbg.png')}
+                    style={{ width: 175, height: 150, justifyContent: 'center', alignItems: 'center' }}
+                    imageStyle={{ borderRadius: 8 }}
+                  >
+                    <Text style={[styles.ChartText1, { marginRight: '60%', marginLeft: "3%" }]}>Sales</Text>
+                    <BarChartSolid data={[30, 45, 28, 80, 99, 43, 50]} height={80} color="#0C439E" />
+                    <Text style={[styles.ChartText2, { marginRight: '55%' }]}>80 MT</Text>
+                  </ImageBackground>
+                </View>
+              </View>
+            </ScrollView>
             <View style={[styles.listSection, { flexGrow: 1 }]}>
               <Text style={styles.listTitle}>Recent Visits</Text>
               {postcreatevisitData.slice(0, 5).map((item) => (
