@@ -404,7 +404,7 @@ const navigation = useNavigation();
         { borderTopWidth: 0.2, borderTopColor: "#bdbbbbff", paddingTop: 10,},
       ]}
     >
-      <Text style={[styles.summaryLabel, { fontWeight: "700" ,marginLeft:10, marginTop:5 }]}>Total Quantity:</Text>
+      <Text style={[styles.summaryLabel, { fontFamily: 'Inter-Bold',fontWeight: "700" ,marginLeft:10, marginTop:5 }]}>Total Quantity:</Text>
 <TouchableOpacity
   style={{ flexDirection: "row", alignItems: "center", marginRight: 10 }}
   onPress={() =>
@@ -416,7 +416,7 @@ const navigation = useNavigation();
     })
   }
 >
-  <Text style={{ color: "#ffffff", fontWeight: "700", fontSize: 12,}}>
+  <Text style={{ color: "#ffffff", fontWeight: "700", fontSize: 13,fontFamily: 'Inter-Bold'}}>
     {totalOrdered}
   </Text>
   <Icon name="angle-right" size={30} color="#a3a3a5ff" style={{ marginLeft: 5}} />
@@ -450,8 +450,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: 10,
   },
-  companyInitial: { color: "#fff", fontWeight: "bold", fontSize: 18 },
-   companyName: { fontSize: 14, fontWeight: "bold", flex: 1, color: "#f0eeeeff" },
+  companyInitial: { color: "#fff", fontWeight: "bold", fontSize: 18,fontFamily: 'Inter-Bold', },
+   companyName: { fontSize: 14, fontWeight: "bold", flex: 1, color: "#f0eeeeff",fontFamily: 'Inter' },
   mobileNumber: { fontSize: 14, color: "#f0eeeeff", marginLeft: 50 },
   billingShippingBox: { marginLeft: 50 },
   billingShippingText: { fontSize: 12, fontWeight: "600", color: "#f17676ff" },
@@ -461,8 +461,8 @@ const styles = StyleSheet.create({
   addressValue: { fontSize: 14, color: "#f0eeeeff" },
   row: { flexDirection: "row", justifyContent: "space-between", marginTop: 10 },
   col: { flex: 1, marginHorizontal: 5 },
-  label: { fontWeight: "bold", marginBottom: 5, color: "#8e8d8dff",fontSize:10 },
-  Value: { fontSize: 12, fontWeight: "500", color: "#ffffff"},
+  label: { fontWeight: "bold", marginBottom: 1, color: "#8e8d8dff",fontSize:12,fontFamily: 'Inter-Bold' },
+  Value: { fontSize: 15, fontWeight: "500", color: "#ffffff",fontFamily: 'Inter-Bold'},
   showProductsButton: {
     backgroundColor: "#3966c2",
     padding: 12,
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 50,
     marginBottom: 10,
   },
-  showProductsText: { color: "#fff", textAlign: "center", fontWeight: "bold" },
+  showProductsText: { color: "#fff", textAlign: "center", fontWeight: "bold",fontFamily: 'Inter-Bold' },
   productRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -480,8 +480,8 @@ const styles = StyleSheet.create({
     borderBottomColor: "#ddd",
 
   },
-  productName: { fontSize: 12, fontWeight: "500", flex: 1, marginRight: 50, marginLeft: 10 ,color:"#ffffff"},
-  productSubtotal: { fontSize: 12, fontWeight: "600", color: "#333", marginLeft: 10 ,marginRight:"8%",color:"#ffffff"},
+  productName: { fontSize: 13, fontWeight: "500", flex: 1, marginRight: 50, marginLeft: 10 ,color:"#ffffff",fontFamily: 'Inter-Bold'},
+  productSubtotal: { fontSize: 13, fontWeight: "600", color: "#333", marginLeft: 10 ,marginRight:"8%",color:"#ffffff",fontFamily: 'Inter-Bold'},
   summaryCard: {
        backgroundColor: "transparent", // fixed spelling & added quotes
     borderRadius: 1,
@@ -496,5 +496,5 @@ const styles = StyleSheet.create({
   summaryHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 15 },
   summaryHeaderText: { fontSize: 14, fontWeight: "600", color: "#24bc99", flex: 1 },
   summaryRow: { flexDirection: "row", justifyContent: "space-between",},
-  summaryLabel: { fontSize: 12, color: "#ffffff" },
+  summaryLabel: { fontSize: 13, color: "#ffffff" },
 });

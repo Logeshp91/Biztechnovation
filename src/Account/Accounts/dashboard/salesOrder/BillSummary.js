@@ -181,9 +181,9 @@ const BillSummary = ({ route }) => {
                 <View style={[styles.summaryRow, styles.totalRow]}>
     <FontAwesome6 name="sack-dollar" size={12} color="#24bc99" style={{ marginRight: 1}} />
 
-                  <Text style={[ styles.summaryLabel1,{ fontWeight: "700", color: "#ffffffff" }]}>Total Amount</Text>
+                  <Text style={[ styles.summaryLabel1,{ fontWeight: "700", color: "#ffffffff" ,fontFamily: 'Inter-Bold'}]}>Total Amount</Text>
                   <Text
-                    style={[styles.summaryValue, { color: "#ffffffff", fontWeight: "700" }]}
+                    style={[styles.summaryValue, { color: "#ffffffff", fontWeight: "700" ,fontFamily: 'Inter-Bold'}]}
                   >
                     ₹  {totalAmount}
                   </Text>
@@ -245,6 +245,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "#24bc99",
+    fontFamily: 'Inter-Bold',
   },
   productRow: {
     flexDirection: "row",
@@ -253,8 +254,8 @@ const styles = StyleSheet.create({
   },
   leftSection: { flex: 2 },
   rightSection: { flex: 1, alignItems: "flex-end" },
-  productName: { fontSize: 10, fontWeight: "600", color: "#ffffffff" },
-  productDetail: { fontSize: 9, color: "#b1b1b1ff", marginLeft: "10%" },
+  productName: { fontSize: 13, fontWeight: "600", color: "#ffffffff" ,fontFamily: 'Inter-Bold'},
+  productDetail: { fontSize: 11, color: "#b1b1b1ff", marginLeft: "10%" ,fontFamily: 'Inter-Bold'},
   totalValue: { fontSize: 11, fontWeight: "700", color: "#ffffffff", marginRight: 5 },
 
   summaryInsideCard: {
@@ -269,8 +270,8 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   iconContainer: { width: 24, alignItems: "left" },
-  summaryLabel: { flex: 1, fontSize: 10, color: "#ffffff",marginLeft:"6%" },
-  summaryLabel1: { flex: 1, fontSize: 10, color: "#ffffff", },
+  summaryLabel: { flex: 1, fontSize: 12, color: "#ffffff",marginLeft:"6%" },
+  summaryLabel1: { flex: 1, fontSize: 12, color: "#ffffff",fontFamily: 'Inter-Bold' },
   summaryValue: { fontSize: 12, fontWeight: "500", color: "#ffffff",marginRight:"2%" },
   totalRow: { borderTopColor: "#b1b1b1ff", paddingTop: 5, marginLeft: "2%", color: "#ffffffff" },
 });

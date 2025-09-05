@@ -114,7 +114,7 @@ const TabNavigation = () => {
         drawerContent={props => <CustomDrawerContent {...props} />}
         screenOptions={{
           drawerStyle: {
-            backgroundColor: "#FFFFFF", width: "85%", height: "90.5%", marginTop: "6.5%", borderTopRightRadius: 15,
+            backgroundColor: "#FFFFFF", width: "55%", height: "90.5%", marginTop: "6.5%", borderTopRightRadius: 15,
             borderBottomRightRadius: 15, borderTopLeftRadius: 15, borderBottomLeftRadius: 15,
             overflow: 'hidden',
           },

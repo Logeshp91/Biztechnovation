@@ -33,3 +33,6 @@ export const odooCallRequest = ({ model, method, args = [], kwargs = {}, request
   type: actionTypes.ODOO_CALL_REQUEST,
   payload: { model, method, args, kwargs, requestKey },
 })
+
+export const clearLoginFields = () => ({ type: actionTypes.CLEAR_LOGIN_FIELDS, });
+

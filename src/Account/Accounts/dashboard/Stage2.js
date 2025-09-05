@@ -200,9 +200,14 @@ const handleConvertEnquiry = async () => {
       navigation.navigate('TabNavigation');
 };
   return (
+ <ImageBackground
+  source={require('../../../assets/backgroundimg.png')}
+  style={styles.background}
+  resizeMode="cover"
+>
     <ScrollView contentContainerStyle={styles.container}>
       <ImageBackground
-        source={require('../../../assets/cardimg.png')}
+        source={require('../../../assets/Cardstage1.png')}
         style={styles.card}
         imageStyle={{ borderRadius: 12 }}
       >
@@ -212,7 +217,7 @@ const handleConvertEnquiry = async () => {
             <Text style={styles.cardTextlabel}>Purpose of visit</Text>
             <Text style={styles.cardTextlabel}>Brand</Text>
           </View>
-          <View style={styles.row}>
+          <View style={styles.row2}>
             <Text style={styles.cardText}>{purposeOfVisit}</Text>
             <Text style={styles.cardText}>{brand}</Text>
           </View>
@@ -317,52 +322,58 @@ const handleConvertEnquiry = async () => {
   </TouchableOpacity>
 </View>
     </ScrollView>
+    </ImageBackground>
   );
 };
 
 export default Stage2;
 
 const styles = StyleSheet.create({
+    background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    justifyContent: "center"
+  },
   container: {
     padding: 25,
-    backgroundColor: '#DFDFDF',
     flexGrow: 1,
   },
   card: {
     marginTop: '20%',
-    height: 200,
+    height: 170,
     padding: 16,
-    borderRadius: 12,
-    marginBottom: 20,
+    marginBottom: 5,
     overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 6,
+
+  },
+    row2: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
   },
   cardTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 18,
     color: '#fff',
-    marginBottom: 4,
+    marginBottom: 10,
     textAlign: 'center',
     marginTop: '5%',
+      fontFamily: 'Inter-Regular',
   },
   cardTextlabel: {
-    fontSize: 12,
-    color: '#989898ff',
+    fontSize: 13,
+    color: '#9b9a9aff',
     alignSelf: 'flex-end',
+    fontFamily: 'Inter-Regular', 
   },
   cardText: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#eee',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-end'
   },
   inputContainer: {
     marginBottom: 20,
@@ -370,7 +381,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     marginBottom: 6,
-    color: '#0452A6',
+    color: '#ffffffff',
   },
   input: {
     borderWidth: 1,

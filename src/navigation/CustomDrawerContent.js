@@ -4,7 +4,7 @@ import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { postauthendication } from '../redux/action';
-
+import { clearLoginFields } from '../redux/action'; 
 
 const CustomDrawerContent = () => {
   const navigation = useNavigation();
@@ -25,10 +25,18 @@ const CustomDrawerContent = () => {
       </View>
 
       <DrawerContentScrollView style={styles.lowerHalf}>
-        <TouchableOpacity onPress={() => navigation.navigate('Screens')}>
+        <TouchableOpacity onPress={() => navigation.navigate('TabNavigation')}>
           <Text style={styles.drawerItem}>Dashboard</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+          <TouchableOpacity
+        onPress={() => {
+  dispatch(clearLoginFields());
+  navigation.reset({
+    index: 0,
+    routes: [{ name: 'Login' }],
+  });
+}}
+        >
           <Text style={styles.drawerItem}>Logout</Text>
         </TouchableOpacity>
       </DrawerContentScrollView>
@@ -48,10 +56,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#ccc',
   },
   drawerItem: {
-    fontSize: 40,
+    fontSize: 20,
     paddingVertical: 15,
     paddingHorizontal: 20,
     marginHorizontal: 10,
+    fontFamily: 'Inter-Bold'
   },
   image: {
     width: 120,

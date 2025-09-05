@@ -4,13 +4,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { postauthendication } from '../../redux/action';
 import Geolocation from 'react-native-geolocation-service';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 
 const Login = ({ navigation }) => {
   const dispatch = useDispatch();
-  const [phone, setPhone] = useState('');
-  const [mobileNumber, setMobileNumber] = useState('');
+const [phone, setPhone] = useState(postauthendicationData?.username || '');  const [mobileNumber, setMobileNumber] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
   const [pin, setPin] = useState(['', '', '', '', '', '']);
   const [keyboardShown, setKeyboardShown] = useState(false);
   const [location, setLocation] = useState(null);
@@ -39,6 +41,12 @@ useEffect(() => {
     }
   }, [mobileNumber]);
 
+  
+useEffect(() => {
+  if (!postauthendicationData) {
+    setPassword('');
+  }
+}, [postauthendicationData]);
 
 
   // const enableGPS = () => {
@@ -171,7 +179,7 @@ useEffect(() => {
 const loginPayload = {
   jsonrpc: '2.0',
   params: {
-    "db": 'bisco_siddhi',
+    "db": 'siddhi_live_test',
     "login": phone.trim(),
     "password": password.trim(),
   },
@@ -254,15 +262,25 @@ dispatch(postauthendication(loginPayload));
             ))}
           </View> */}
 
-          <Text style={styles.pinlabel}>Password</Text>
-<TextInput
-  style={[styles.phoneInputContainer, { height: 45, marginBottom: 20 }]}
-  secureTextEntry={true}
-  placeholder="Enter password"
-  placeholderTextColor="#999"
-  value={password}
-  onChangeText={(text) => setPassword(text)}
-/>
+<Text style={styles.pinlabel}>Password</Text>
+<View style={[styles.phoneInputContainer, { height: 45, marginBottom: 20 }]}>
+  <TextInput
+    style={{ flex: 1, fontSize: 15, color: '#000' }}
+    secureTextEntry={!showPassword} // toggles visibility
+    placeholder="Enter password"
+    placeholderTextColor="#999"
+    value={password}
+    onChangeText={(text) => setPassword(text)}
+  />
+  <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+    <MaterialCommunityIcons 
+      name={showPassword ? 'eye' : 'eye-off'}  // eye/eye-off toggle
+      size={20} 
+      color="#999" 
+    />
+  </TouchableOpacity>
+</View>
+
           <TouchableOpacity
             onPress={handleLogin}
             style={[

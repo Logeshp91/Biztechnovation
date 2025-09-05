@@ -57,11 +57,21 @@ const postauthendicationReducer = (state = initial, action) => {
                 userToken: null,
             };
 
-        case actionTypes.CLEAR_LOGIN_FIELDS:
-            return {
-                ...initial,
-            };
-
+case actionTypes.CLEAR_LOGIN_FIELDS:
+  return {
+    ...state,
+    userToken: null,
+    uid: null,
+    postauthendicationError: null,
+    postauthendicationErrorInvalid: null,
+    postauthendicationLoading: false,
+     postauthendicationData: null
+      ? {
+          ...state.postauthendicationData,
+          password: '', // clear only password
+        }
+      : null,
+  };
         default:
             return state;
     }

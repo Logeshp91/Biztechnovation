@@ -88,9 +88,14 @@ const Stage1 = () => {
   };
 
   return (
+ <ImageBackground
+  source={require('../../../assets/backgroundimg.png')}
+  style={styles.background}
+  resizeMode="cover"
+>
     <ScrollView contentContainerStyle={styles.container}>
       <ImageBackground
-        source={require('../../../assets/cardimg.png')}
+        source={require('../../../assets/Cardstage1.png')}
         style={styles.card}
         imageStyle={{ borderRadius: 12 }}
       >
@@ -100,7 +105,7 @@ const Stage1 = () => {
             <Text style={styles.cardTextlabel}>Purpose of visit</Text>
             <Text style={styles.cardTextlabel}>Brand</Text>
           </View>
-          <View style={styles.row}>
+          <View style={styles.row2}>
             <Text style={styles.cardText}>{purposeOfVisit}</Text>
             <Text style={styles.cardText}>{brand}</Text>
           </View>
@@ -160,6 +165,7 @@ const Stage1 = () => {
             }
           }}
           placeholderStyle={{ color: '#c6c4c4ff', fontSize: 11.5 }}
+          selectedTextStyle={styles.dropdownSelectedText} 
         />
 
         <Text style={styles.label}>Remarks</Text>
@@ -249,6 +255,7 @@ const Stage1 = () => {
         </View>
       </Modal>
     </ScrollView>
+    </ImageBackground>
   );
 };
 
@@ -257,63 +264,73 @@ export default Stage1;
 
 
 const styles = StyleSheet.create({
+    background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    justifyContent: "center"
+  },
   container: {
     padding: 25,
-    backgroundColor: '#DFDFDF',
     flexGrow: 1,
   },
   card: {
     marginTop: '20%',
-    height: 200,
+    height: 170,
     padding: 16,
-    borderRadius: 12,
-    marginBottom: 20,
+    marginBottom: 5,
     overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 6,
+
+  },
+    row2: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
   },
   cardTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 18,
     color: '#fff',
-    marginBottom: 4,
+    marginBottom: 10,
     textAlign: 'center',
-    marginTop: '5%'
+    marginTop: '5%',
+      fontFamily: 'Inter-Regular',
   },
   cardTextlabel: {
-    fontSize: 12,
-    color: '#989898ff',
-    alignSelf: 'flex-end'
+    fontSize: 13,
+    color: '#9b9a9aff',
+    alignSelf: 'flex-end',
+    fontFamily: 'Inter-Regular', 
   },
   cardText: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#eee',
     justifyContent: 'flex-end'
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   label: {
-    fontSize: 14,
+    fontSize: 13,
     marginBottom: 6,
-    color: '#0452A6',
+    color: '#f9f9f9ff',
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#0452A6',
-    borderRadius: 8,
-    padding: Platform.OS === 'ios' ? 12 : 10,
-    marginBottom: 16,
-    backgroundColor: '#ffffff',
-  },
+input: {
+  borderWidth: 1,
+  borderColor: '#ffffffff',
+  borderRadius: 8,
+  height: 40, 
+  paddingHorizontal: 15, 
+  marginTop:1,
+  paddingVertical: Platform.OS === 'ios' ? 14 : 12, 
+  marginBottom: 16,
+  backgroundColor: '#ffffff',
+  fontSize: 14
+},
+
   button: {
     backgroundColor: '#0452A6',
     padding: 14,
@@ -340,7 +357,7 @@ const styles = StyleSheet.create({
   },
   dropdownmain: {
     height: 40,
-    width: '100%',
+    width: '99%',
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 12,
@@ -348,6 +365,11 @@ const styles = StyleSheet.create({
     marginBottom: '2%',
     borderColor: '#0452A6'
   },
+  dropdownSelectedText: {
+  fontSize: 14,       
+  color: '#000',      
+  fontFamily: 'Inter-Regular', 
+},
   dateButton: {
     borderWidth: 1,
     padding: 12,
@@ -390,13 +412,13 @@ const styles = StyleSheet.create({
   },
   followUpLabel: {
     fontSize: 13,
-    color: '#0452A6',
+    color: '#9b9a9aff',
     fontWeight: '600',
     marginRight: 6,
   },
   followUpDate: {
     fontSize: 13,
-    color: '#333',
+    color: '#ffffffff',
     fontWeight: '500',
   },
 

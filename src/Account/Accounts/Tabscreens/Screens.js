@@ -62,12 +62,17 @@ const [showThirdChart, setShowThirdChart] = useState(false);
     { useNativeDriver: true }
   );
 
-  const StatBox = ({ label, count, color, onPress, labelStyle, countStyle }) => (
-    <TouchableOpacity style={[styles.colorBox, { backgroundColor: color }]} onPress={onPress}>
-      <Text style={[styles.boxText, labelStyle]}>{label}</Text>
-      <Text style={[styles.boxNumber, countStyle]}>{count}</Text>
-    </TouchableOpacity>
-  );
+const StatBox = ({ label, color, onPress, labelStyle, countStyle }) => (
+  <TouchableOpacity style={[styles.colorBox, { backgroundColor: color }]} onPress={onPress}>
+    <Text style={[styles.boxText, labelStyle]}>{label}</Text>
+  </TouchableOpacity>
+);
+// const StatBox = ({ label, count, color, onPress }) => (
+//   <TouchableOpacity style={[styles.colorBox, { backgroundColor: color }]} onPress={onPress}>
+//     <Text style={styles.boxText}>{label}</Text>
+//     <Text style={styles.boxNumber}>{count}</Text>
+//   </TouchableOpacity>
+// );
   const backPressRef = useRef(0);
 
   useFocusEffect(
@@ -176,40 +181,6 @@ const [showThirdChart, setShowThirdChart] = useState(false);
       UIManager.setLayoutAnimationEnabledExperimental(true);
     }
   }, []);
-  const AnimatedStatBox = ({ label, count, color, onPress, delay, labelStyle, countStyle }) => {
-    const translateY = useRef(new Animated.Value(50)).current;
-    const opacity = useRef(new Animated.Value(0)).current;
-
-    useEffect(() => {
-      Animated.parallel([
-        Animated.timing(translateY, {
-          toValue: 0,
-          duration: 500,
-          delay,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 500,
-          delay,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }, [delay, translateY, opacity]);
-
-    return (
-      <Animated.View style={{ transform: [{ translateY }], opacity }}>
-        <StatBox
-          label={label}
-          count={count}
-          color={color}
-          onPress={onPress}
-          labelStyle={labelStyle}
-          countStyle={countStyle}
-        />
-      </Animated.View>
-    );
-  };
   // 🔹 Process Data
   useEffect(() => {
     if (Array.isArray(postcreatevisitData)) {
@@ -230,7 +201,6 @@ const [showThirdChart, setShowThirdChart] = useState(false);
         const stateValue = Array.isArray(item.state) ? item.state[1] : item.state;
         return stateValue?.toLowerCase() === "lost";
       });
-
       setCompletedCount(completedOrders.length);
       setApprovalPendingCount(approvalPending.length);
       setApprovedListCount(approvedList.length);
@@ -256,7 +226,7 @@ const [showThirdChart, setShowThirdChart] = useState(false);
 
 const handleHorizontalScroll = (event) => {
   const scrollX = event.nativeEvent.contentOffset.x;
-  if (scrollX > 150) { // Adjust this threshold based on your chart width
+  if (scrollX > 150) { 
     setShowThirdChart(true);
   }
 };
@@ -275,8 +245,12 @@ const handleHorizontalScroll = (event) => {
       >
         <View style={styles.container}>
           <View>
-            <Text style={styles.greeting}>{greetingText}, Periyasamy</Text>
-            <Text style={styles.dateText}>{formattedDate}</Text>
+            <Text style={styles.greeting}>
+              {greetingText}, Periyasamy
+              </Text>
+            <Text style={styles.dateText}>
+              {formattedDate}
+              </Text>
           </View>
           <ScrollView
             horizontal
@@ -291,17 +265,15 @@ const handleHorizontalScroll = (event) => {
                 <View style={{ alignItems: 'flex-start', padding: 10 }}>
                   <Text style={styles.targetTextTitle}>Sales Target</Text>
                   <View style={{ flexDirection: "row" }}>
-                    <Text style={styles.targetTextValue}>100 </Text>
+                    <Text style={styles.targetTextValue}>100{" "}</Text>
                     <Text style={styles.targetTextValue}>MT</Text>
                   </View>
                   <View style={{ flexDirection: "row" }}>
                     <Text style={styles.targetText}>Achieved</Text>
-                    <Text style={styles.targetText1}> 82</Text>
-                    <Text style={styles.targetText2}> MT</Text>
+                    <Text style={styles.targetText1}>{" "}82</Text>
+                    <Text style={styles.targetText2}>{" "}MT</Text>
                   </View>
                 </View>
-
-                {/* Circle placed below the text, centered horizontally */}
                 <View style={{ alignItems: 'center', width: '100%', marginBottom: 5, marginTop: 8 }}>
                   <View
                     style={{
@@ -346,9 +318,9 @@ const handleHorizontalScroll = (event) => {
                     <Text style={styles.targetTextValue}>₹</Text>
                     <Text style={styles.targetTextValue}>50,00,000</Text>
                   </View>
-                  <View style={{ flexDirection: "row", marginBottom: "10" }}>
-                    <Text style={styles.targetText}>Collected </Text>
-                    <Text style={styles.targetText1}>₹</Text>
+                  <View style={{ flexDirection: "row", marginBottom: 10 }}>
+                    <Text style={styles.targetText}>Collected{" "}</Text>
+                    <Text style={styles.targetText1}>₹{" "}</Text>
                     <Text style={styles.targetText2}>28,00,000</Text>
                   </View>
                 </View>
@@ -390,13 +362,13 @@ const handleHorizontalScroll = (event) => {
                 style={styles.circleBackground3}
                 resizeMode="cover"
               >
-                <View style={{ alignItems: 'flex-start', marginLeft: 10, marginTop: 2 }}>
-                  <Text style={styles.targetTextTitle}>Visit</Text>
-                  <View style={{ flexDirection: "row", marginTop: 4 }}>
+                <View style={{ alignItems: 'flex-start', marginLeft: 10, marginTop: 7 }}>
+                  <Text style={styles.targetTextTitleVisit}>Visit</Text>
+                  <View style={{ flexDirection: "row" ,marginBottom:5,}}>
                     <Text style={styles.targetText}>Planned </Text>
                     <Text style={styles.targetText1}>20</Text>
                   </View>
-                  <View style={{ flexDirection: "row", marginTop: 4 }}>
+                  <View style={{ flexDirection: "row", marginBottom:15, }}>
                     <Text style={styles.targetText}>completed </Text>
                     <Text style={styles.targetText1}>20</Text>
                   </View>
@@ -404,8 +376,9 @@ const handleHorizontalScroll = (event) => {
                 <View style={{
 
                   width: '80%',
-                  marginTop: 20,
-                  marginLeft: 10
+                  marginTop: 10,
+                  marginLeft: 10,
+                  marginBottom:10
                 }}>
                   <View style={{
                     height: 8,
@@ -420,13 +393,6 @@ const handleHorizontalScroll = (event) => {
                       backgroundColor: '#57D6E2',
                     }} />
                   </View>
-
-                  <Text style={{
-                    color: '#FFFFFF',
-                    fontSize: 14,
-                    fontFamily: 'Inter-Regular',
-                  }}>
-                  </Text>
                 </View>
 
                 <View style={{ flexDirection: "row", marginLeft: 6 }}>
@@ -438,9 +404,9 @@ const handleHorizontalScroll = (event) => {
 
 
             <View>
-              <View style={{ width: 120, height: 165, justifyContent: 'center', alignItems: 'center', backgroundColor: '#cecdcdff', marginLeft: 10, marginTop: 10 }}>
-                <Text style={{ color: '#fff', fontSize: 20 }}>hello</Text>
-              </View>
+<View style={{ width: 120, height: 165, justifyContent: 'center', alignItems: 'center', backgroundColor: '#cecdcdff', marginLeft: 10, marginTop: 10 }}>
+  <Text style={{ color: '#fff', fontSize: 20 }}>hello</Text>
+</View>
             </View>
           </ScrollView>
           <Animated.ScrollView
@@ -466,19 +432,19 @@ const handleHorizontalScroll = (event) => {
                   imageStyle={{}}
                 >
                   <View style={{ flexDirection: "row" }}>
-                    icon={
+                  
                       <Image
                         source={require('../../../assets/allList.png')}
                         style={{ width: 40, height: 40 }}
                         resizeMode="contain"
-                      />}
-                    <AnimatedStatBox
+                      />
+                    <StatBox
                       label="All List"
-                      labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "medium", marginTop: "25%" }}
+                      labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "500", marginTop: 2 }}
                       countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }}
                       color="transparent"
                       onPress={() => navigation.navigate('OpenEnquiry')}
-                      delay={100}
+                      
                     />
                   </View>
 
@@ -490,18 +456,17 @@ const handleHorizontalScroll = (event) => {
                     imageStyle={{ borderRadius: 8 }}
                   >
                     <View style={{ flexDirection: "row" }}>
-                      icon={
+                    
                         <Image
-                          source={require('../../../assets/pendingicon.png')} // your image
+                          source={require('../../../assets/pendingicon.png')} 
                           style={{ width: 40, height: 40 }}
                           resizeMode="contain"
-                        />}
-                      <AnimatedStatBox
+                        />
+                      <StatBox
                         label="Pending"
                         color="transparent"
                         onPress={() => navigation.navigate('ApprovalPending')}
-                        delay={100}
-                        labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "medium", marginTop: "25%" }} // text size & color
+                        labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "500", marginTop: 2 }}
                         countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }}
                       />
                     </View>
@@ -515,33 +480,32 @@ const handleHorizontalScroll = (event) => {
                   imageStyle={{ borderRadius: 8 }}
                 >
                   <View style={{ flexDirection: "row" }}>
-                    icon={
+                  
                       <Image
                         source={require('../../../assets/Approvedicon.png')}
                         style={{ width: 40, height: 40 }}
                         resizeMode="contain"
-                      />}
-                    <AnimatedStatBox label="Approved" color="transparent" onPress={() => navigation.navigate('ApprovedList')} delay={50} labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "medium", marginTop: "25%" }} // text size & color
+                      />
+                    <StatBox label="Approved" color="transparent" onPress={() => navigation.navigate('ApprovedList')}  labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "500", marginTop: 2 }}
                       countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }} />
                   </View>
                 </ImageBackground>
                 <View style={{ marginTop: 10 }}>
                   <ImageBackground
-                    source={require('../../../assets/Rectanglelist.png')} // second box image
+                    source={require('../../../assets/Rectanglelist.png')} 
                     style={{ width: 175, height: 60, justifyContent: 'center', alignItems: 'center' }}
                     imageStyle={{ borderRadius: 8 }}
                   >
                     <View style={{ flexDirection: "row" }}>
-                      icon={
+                    
                         <Image
-                          source={require('../../../assets/completed.png')} // your image
+                          source={require('../../../assets/completed.png')}
                           style={{ width: 40, height: 40 }}
                           resizeMode="contain"
-                        />}
+                        />
 
-                      <AnimatedStatBox label="Lost" color="transparent" onPress={() => navigation.navigate('LostList')}
-                        delay={300}
-                        labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "medium", marginTop: "25%" }} // text size & color
+                      <StatBox label="Lost" color="transparent" onPress={() => navigation.navigate('LostList')}
+                        labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "500", marginTop: 2 }} 
                         countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }} />
                     </View>
                   </ImageBackground>
@@ -549,35 +513,35 @@ const handleHorizontalScroll = (event) => {
               </View>
               <View >
                 <ImageBackground
-                  source={require('../../../assets/Rectanglelist.png')} // second box image
+                  source={require('../../../assets/Rectanglelist.png')}
                   style={{ width: 170, height: 60, justifyContent: 'center', alignItems: 'center' }}
                   imageStyle={{ borderRadius: 8 }}
                 >
                   <View style={{ flexDirection: "row" }}>
-                    icon={
+                  
                       <Image
-                        source={require('../../../assets/completed.png')} // your image
+                        source={require('../../../assets/completed.png')} 
                         style={{ width: 40, height: 40 }}
                         resizeMode="contain"
-                      />}
-                    <AnimatedStatBox label="Completed" color="transparent" onPress={() => navigation.navigate('CompletedOrder')} delay={100} labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "medium", marginTop: "25%" }} // text size & color
+                      />
+                    <StatBox label="Complete" color="transparent" onPress={() => navigation.navigate('CompletedOrder')}  labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "500", marginTop: 2 }} 
                       countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }} />
                   </View>
                 </ImageBackground>
                 <View style={{ marginTop: 10 }}>
                   <ImageBackground
-                    source={require('../../../assets/Rectanglelist.png')} // second box image
+                    source={require('../../../assets/Rectanglelist.png')} 
                     style={{ width: 170, height: 60, justifyContent: 'center', alignItems: 'center' }}
                     imageStyle={{ borderRadius: 8 }}
                   >
                     <View style={{ flexDirection: "row" }}>
-                      icon={
+                      
                         <Image
-                          source={require('../../../assets/saleorder.png')} // your image
+                          source={require('../../../assets/saleorder.png')} 
                           style={{ width: 40, height: 40 }}
                           resizeMode="contain"
-                        />}
-                      <AnimatedStatBox label="Sale Order" color="transparent" onPress={() => navigation.navigate('SonumberList')} delay={100} labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "medium", marginTop: "25%" }} // text size & color
+                        />
+                      <StatBox label="Sale Order" color="transparent" onPress={() => navigation.navigate('SonumberList')} labelStyle={{ fontSize: 15, color: '#FFFDFD', fontFamily: 'Inter', fontWeight: "500", marginTop: 2 }} 
                         countStyle={{ fontSize: 20, color: '#0000FF', fontWeight: '600' }} />
                     </View>
                   </ImageBackground>
@@ -594,16 +558,16 @@ const handleHorizontalScroll = (event) => {
             <View>
             <View style={{ flexDirection: 'row', marginTop: 20, backgroundColor: 'transparent' }}>
               <ImageBackground
-                source={require('../../../assets/Chartbg.png')} // second box image
+                source={require('../../../assets/Chartbg.png')} 
                 style={{ width: 175, height: 150, justifyContent: 'center', alignItems: 'center' }}
                 imageStyle={{ borderRadius: 8 }}
               >
                 <Text style={[styles.ChartText1, { marginRight: '60%' }]}>Sales</Text>
                 <BarChartSolid data={[30, 45, 28, 80, 99, 43, 50]} height={80} color="#0C439E" />
-                <Text style={[styles.ChartText2, { marginRight: '55%' }]}>80 MT</Text>
+                <Text style={[styles.ChartText2, { marginRight: '55%' }]}>80{" "}MT</Text>
               </ImageBackground>
               <ImageBackground
-                source={require('../../../assets/Chartbg.png')} // second box image
+                source={require('../../../assets/Chartbg.png')} 
                 style={{ width: 175, height: 150, justifyContent: 'center', alignItems: 'center' }}
                 imageStyle={{ borderRadius: 8 }}
               >
@@ -713,12 +677,7 @@ const handleHorizontalScroll = (event) => {
   );
 }
 
-const StatBox = ({ label, count, color, onPress }) => (
-  <TouchableOpacity style={[styles.colorBox, { backgroundColor: color }]} onPress={onPress}>
-    <Text style={styles.boxText}>{label}</Text>
-    <Text style={styles.boxNumber}>{count}</Text>
-  </TouchableOpacity>
-);
+
 
 export default Screens;
 const styles = StyleSheet.create({
@@ -786,11 +745,11 @@ const styles = StyleSheet.create({
     marginBottom: 5
   },
   targetTextValue: {
-    fontFamily: 'Inter-Medium',
+    fontFamily: 'Inter-medium',
     fontSize: 20,
     color: '#f4f4f5ff',
     marginTop: 4,
-    fontWeight: "medium"
+    fontWeight: "500"
   },
   targetText1: {
     fontFamily: 'Inter-Regular',
@@ -809,7 +768,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#ffffff',
     marginTop: 2,
-    fontWeight: "semibold"
+    fontWeight: "600"
   },
   ChartText2: {
     fontFamily: 'Inter-semibold',
